@@ -1,35 +1,42 @@
 #!/usr/bin/env python3
-"""Berlin power outage guide: one source table drives the web page, the offline page and the downloader.
+"""Berlin power outage guide: one source table drives every page and the downloader.
 
-  python3 outage_guide.py web                               -> index.html, links go to the original sources
+  python3 outage_guide.py build                             -> index.html, README.md and .gitignore; links go
+                                                               to the original sources, or to files in this repo
   python3 outage_guide.py local DIR                         -> DIR/START_HERE.html, links go to files in DIR
-  python3 outage_guide.py download DIR [--with-wikipedia]   -> download the library into DIR, then build local
+  python3 outage_guide.py download [DIR] [--with-wikipedia] -> download the library into DIR (default: this
+                                                               folder), then build DIR/START_HERE.html
+
+The repo ships only files that may be shared: US government works (public domain), Wikipedia and
+Appropedia articles (CC BY-SA) and OpenStreetMap data (ODbL). Everything else comes from its publisher.
 """
 import argparse
 import csv
 import hashlib
 import html
-import io
 import re
 import shutil
 import subprocess
 import sys
 import tarfile
 from dataclasses import dataclass
-from html.parser import HTMLParser
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
-DATA = REPO / "data"
 REPO_URL = "https://github.com/morganrivers/berlin-outage-guide"
 UA = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
 KIWIX = "https://download.kiwix.org/"
 HESP = "https://hesperian.org/wp-content/uploads/pdf/"
 HESP_INDEX = "https://languages.hesperian.org/pages/en/pdf.html"
+CHAPTERS = "hesperian_chapters/"
 
 
 def hesperian_chapters(book, parts):
     return tuple(f"{HESP}{book}/{book}_{p}.pdf" for p in parts)
+
+
+def chapter_path(url):
+    return CHAPTERS + url.rsplit("/", 1)[1]
 
 
 WTND_CHAPTERS = hesperian_chapters(
@@ -39,71 +46,88 @@ DENT_CHAPTERS = hesperian_chapters("en_dent_2024", ["fm", *[f"{i:02d}" for i in 
 
 @dataclass(frozen=True)
 class Source:
-    path: str        # path inside the offline library folder
+    path: str        # path inside the library folder; for get="hesperian", the chapter that opens the book
     desc: str
-    url: str         # original source: shown in the references, linked on the web page, downloaded
-    get: str         # file | print | text | hesperian | repo
-    web: str = ""    # web page link when it differs from url
-    parts: tuple = ()          # chapter URLs for get="hesperian"
-    page_map: tuple = ()       # (merged page, chapter URL, chapter page) for web links into merged books
+    url: str         # original source: shown in the references, linked online, downloaded
+    get: str         # repo (shipped in this repo) | file | print (save web page as PDF) | hesperian (chapter PDFs)
+    web: str = ""    # online link when it differs from url
+    parts: tuple = ()      # chapter URLs for get="hesperian"
+    page_map: tuple = ()   # (topic, chapter URL, page in that chapter PDF) for get="hesperian"
+
+    def chapter(self, page):
+        hits = [(url, p) for topic, url, p in self.page_map if topic == page]
+        assert len(hits) <= 1 and (hits or not isinstance(page, str)), f"no chapter for {page!r} in {self.path}"
+        return hits[0] if hits else None
+
+    def local_href(self, page=None):
+        ch = self.chapter(page)
+        if ch:
+            return f"{chapter_path(ch[0])}#page={ch[1]}"
+        return self.path + (f"#page={page}" if page else "")
 
     def web_href(self, page=None):
-        for merged, url, chapter_page in self.page_map:
-            if merged == page:
-                return f"{url}#page={chapter_page}"
+        if self.get == "repo":
+            return self.local_href(page)  # relative link into this repo
+        ch = self.chapter(page)
+        if ch:
+            return f"{ch[0]}#page={ch[1]}"
         base = self.web or self.url
         return base + (f"#page={page}" if page and base.endswith(".pdf") else "")
 
+    def local_files(self):
+        return [chapter_path(u) for u in self.parts] if self.get == "hesperian" else [self.path]
 
-def wiki(title, path_name, site="Wikipedia"):
+
+def article(title, site="Wikipedia"):
     base = "https://en.wikipedia.org/wiki/" if site == "Wikipedia" else "https://www.appropedia.org/"
-    return Source(f"library_extracts/{site}_{path_name}.pdf",
-                  f"{site} article {title.replace('_', ' ')} (CC BY-SA), saved as PDF", base + title, "print")
+    return Source(f"library_extracts/{site}_{title}.pdf",
+                  f"{site} article {title.replace('_', ' ')}, CC BY-SA licence, saved as PDF", base + title, "repo")
 
 
 BBK_EN = "emergency_guides/BBK_Planning_ahead_for_crises_and_disasters_2025_EN.pdf"
-WTND = "Where_There_Is_No_Doctor_2025.pdf"
+WTND = chapter_path(WTND_CHAPTERS[1])
+DENT = chapter_path(DENT_CHAPTERS[0])
+FEMA_READY = "emergency_guides/FEMA_Are_You_Ready_2020.pdf"
 SOURCES = {s.path: s for s in [
     Source(BBK_EN, "BBK (German federal civil protection office): Planning ahead for crises and disasters, English, Nov 2025",
            "https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf", "file"),
     Source("emergency_guides/BBK_Stromausfall_Vorsorge_und_Selbsthilfe_DE.pdf", "BBK: Stromausfall, Vorsorge und Selbsthilfe (German, older)",
            "https://epflicht.ulb.uni-bonn.de/download/pdf/786332", "file"),
-    Source("emergency_guides/FEMA_Power_Outage_sheet.pdf", "FEMA: Be prepared for a power outage, V-1008, Dec 2023",
-           "https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf", "file"),
-    Source("emergency_guides/FEMA_Are_You_Ready_2020.pdf", "FEMA: Are You Ready? (US citizen preparedness guide; US government work, public domain, copy in this repo because ready.gov blocks scripts)",
+    Source("emergency_guides/FEMA_Power_Outage_sheet.pdf", "FEMA: Be prepared for a power outage, V-1008, Dec 2023 (US government work, public domain)",
+           "https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf", "repo"),
+    Source(FEMA_READY, "FEMA: Are You Ready? US citizen preparedness guide (US government work, public domain)",
            "https://www.ready.gov/sites/default/files/2021-03/are-you-ready-guide.pdf", "repo"),
-    Source("emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf", "CDC: Keep food safe after a disaster or emergency (web page saved as PDF)",
-           "https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html", "print"),
+    Source("emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf", "CDC: Keep food safe after a disaster or emergency (US government work, public domain; web page saved as PDF)",
+           "https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html", "repo"),
     Source("emergency_guides/Emergency_Toilets_WREMO.pdf", "WREMO (Wellington, NZ): Emergency toilets, two bucket method (web page saved as PDF; its folded question and answer sections do not print)",
            "https://www.wremo.nz/get-ready/home-ready/emergency-toilets", "print"),
     Source("emergency_guides/WHO_Psychological_First_Aid_2011.pdf", "WHO: Psychological first aid, guide for field workers, 2011",
            "https://mhpsshub.org/wp-content/uploads/2018/10/9789241548205_eng.pdf", "file"),
-    Source(WTND, "Hesperian: Where There Is No Doctor, 2025 (chapter PDFs merged into one)", HESP + "en_wtnd_2025/", "hesperian",
-           web=HESP_INDEX, parts=WTND_CHAPTERS,
-           page_map=((199, WTND_CHAPTERS[15], 2), (457, WTND_CHAPTERS[27], 10))),
-    Source("Where_There_Is_No_Dentist_2024.pdf", "Hesperian: Where There Is No Dentist, 2024 (chapter PDFs merged into one)",
+    Source(WTND, f"Hesperian: Where There Is No Doctor, 2025 ({len(WTND_CHAPTERS)} chapter PDFs in {CHAPTERS}; this one is the contents)",
+           HESP + "en_wtnd_2025/", "hesperian", web=HESP_INDEX, parts=WTND_CHAPTERS,
+           page_map=(("rehydration", WTND_CHAPTERS[15], 2), ("cold", WTND_CHAPTERS[27], 10))),
+    Source(DENT, f"Hesperian: Where There Is No Dentist, 2024 ({len(DENT_CHAPTERS)} chapter PDFs in {CHAPTERS}; this one opens the book)",
            HESP + "en_dent_2024/", "hesperian", web=HESP_INDEX, parts=DENT_CHAPTERS),
     Source("berlin/Berlin_Flyer_Gefahrenlagen.pdf", "Berlin Senate: flyer, information for the public in dangerous situations (German)",
            "https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/druckdatei-flyer---informationen-und-hinweise-fuer-die-bevoelkerung-bei-gefahrenlagen.pdf", "file"),
-    Source("berlin/berlin_stromausfall.txt", "berlin.de: Vorsorge und Verhalten bei Stromausfall (text copy; .html copy next to it)",
-           "https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php", "text"),
-    Source("berlin/berlin_rufnummern.txt", "berlin.de: Wichtige Rufnummern (text copy; .html copy next to it)",
-           "https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php", "text"),
+    Source("berlin/berlin_stromausfall.html", "berlin.de: Vorsorge und Verhalten bei Stromausfall (saved web page)",
+           "https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php", "file"),
+    Source("berlin/berlin_rufnummern.html", "berlin.de: Wichtige Rufnummern (saved web page)",
+           "https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php", "file"),
     Source("berlin/rbb_frequenzen.html", "rbb: radio frequencies (saved web page)", "https://www.rbb-online.de/radio/frequenzen/", "file"),
-    Source("berlin/giftnotruf.txt", "Giftnotruf Berlin, Charité (poison line, text copy)", "https://giftnotruf.charite.de/", "text"),
-    Source("berlin/116117.txt", "116117: medical on-call service (text copy)", "https://www.116117.de/de/index.php", "text"),
-    Source("berlin/kat_leuchttuerme.csv", "berlin.de: Katastrophenschutz-Leuchttürme, all 73 locations (CSV export, Nov 2026)",
-           "https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/anlaufstellen-fuer-die-bevoelkerung/", "repo",
-           web="data/kat_leuchttuerme.csv"),
-    Source("berlin/notbrunnen_osm.csv", "Manual water pumps in Berlin, © OpenStreetMap contributors, ODbL licence (Overpass export, CSV, Nov 2026)",
-           "https://www.openstreetmap.org/copyright", "repo", web="data/notbrunnen_osm.csv"),
+    Source("berlin/giftnotruf.html", "Giftnotruf Berlin, Charité (poison line, saved web page)", "https://giftnotruf.charite.de/", "file"),
+    Source("berlin/116117.html", "116117: medical on-call service (saved web page)", "https://www.116117.de/de/index.php", "file"),
+    Source("berlin/kat_leuchttuerme.csv", "berlin.de: Katastrophenschutz-Leuchttürme, all 73 locations (list of addresses, Nov 2026)",
+           "https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/anlaufstellen-fuer-die-bevoelkerung/", "repo"),
+    Source("berlin/notbrunnen_osm.csv", "Manual water pumps in Berlin, © OpenStreetMap contributors, ODbL licence (Overpass export, Nov 2026)",
+           "https://www.openstreetmap.org/copyright", "repo"),
     Source("berlin/notbrunnen_hand_pumps.gpx", "Same pumps as GPX for offline map apps, made from the CSV above (© OpenStreetMap contributors, ODbL)",
-           "https://www.openstreetmap.org/copyright", "repo", web="data/notbrunnen_hand_pumps.gpx"),
-    wiki("Bucket_toilet", "Bucket_toilet"),
-    wiki("Emergency_sanitation", "Emergency_sanitation"),
-    wiki("Carbon_monoxide_poisoning", "Carbon_monoxide_poisoning"),
-    wiki("Hypothermia", "Hypothermia"),
-    wiki("Water_supply_and_purification_for_emergencies", "Water_supply_and_purification_for_emergencies", site="Appropedia"),
+           "https://www.openstreetmap.org/copyright", "repo"),
+    article("Bucket_toilet"),
+    article("Emergency_sanitation"),
+    article("Carbon_monoxide_poisoning"),
+    article("Hypothermia"),
+    article("Water_supply_and_purification_for_emergencies", site="Appropedia"),
 ]}
 
 # (Kiwix folder, file name prefix, size note, needs --with-wikipedia)
@@ -120,7 +144,7 @@ ZIMS = [
 
 
 class Guide:
-    """Renders links for one mode: web (original sources) or local (files in lib)."""
+    """Renders links for one mode: web (original sources and this repo) or local (files in lib)."""
 
     def __init__(self, mode, lib=None):
         assert mode in ("web", "local")
@@ -129,24 +153,25 @@ class Guide:
 
     def href(self, path, page=None):
         src = SOURCES[path]
+        if src.get == "repo":
+            assert (REPO / path).is_file(), f"missing repo file: {path}"
         if self.mode == "web":
-            if src.get == "repo":
-                assert (DATA / Path(path).name).is_file(), f"missing repo data file: {path}"
-            return src.web_href(page), bool(page and "#page=" in src.web_href(page))
-        if (self.lib / path).is_file():
-            return path + (f"#page={page}" if page else ""), bool(page)
+            return src.web_href(page)
+        if all((self.lib / f).is_file() for f in src.local_files()):
+            return src.local_href(page)
         self.missing.append(path)
         print(f"WARNING: {path} is missing in {self.lib}; its links go online instead", file=sys.stderr)
-        return src.web_href(page), bool(page and "#page=" in src.web_href(page))
+        return src.web_href(page)
 
     def a(self, path, text, page=None):
-        href, has_page = self.href(path, page)
-        label = text + (f", PDF page {page}" if page and has_page else "")
+        href = self.href(path, page)
+        numbered = page and not isinstance(page, str) and "#page=" in href
+        label = text + (f", PDF page {page}" if numbered else "")
         return f'<a href="{html.escape(href)}">{html.escape(label)}</a>'
 
 
 def build_gpx():
-    rows = list(csv.DictReader(open(DATA / "notbrunnen_osm.csv", encoding="utf-8"), delimiter=";"))
+    rows = list(csv.DictReader(open(REPO / "berlin/notbrunnen_osm.csv", encoding="utf-8"), delimiter=";"))
     assert len(rows) > 1000, f"expected about 2000 pumps, got {len(rows)}"
     pts = [f'<wpt lat="{float(r["@lat"]):.7f}" lon="{float(r["@lon"]):.7f}"><name>{html.escape(r.get("name") or "Notbrunnen (hand pump)")}</name></wpt>'
            for r in rows]
@@ -154,12 +179,12 @@ def build_gpx():
            '<gpx version="1.1" creator="berlin-outage-guide" xmlns="http://www.topografix.com/GPX/1/1">\n'
            '<metadata><copyright author="OpenStreetMap contributors"><license>https://opendatacommons.org/licenses/odbl/</license></copyright></metadata>\n'
            + "\n".join(pts) + "\n</gpx>\n")
-    (DATA / "notbrunnen_hand_pumps.gpx").write_text(gpx, encoding="utf-8")
+    (REPO / "berlin/notbrunnen_hand_pumps.gpx").write_text(gpx, encoding="utf-8")
     return len(rows)
 
 
 def meeting_points_table():
-    rows = list(csv.DictReader(open(DATA / "kat_leuchttuerme.csv", encoding="utf-8"), delimiter=";"))
+    rows = list(csv.DictReader(open(REPO / "berlin/kat_leuchttuerme.csv", encoding="utf-8"), delimiter=";"))
     assert len(rows) > 50, f"expected about 73 meeting points, got {len(rows)}"
     rows.sort(key=lambda r: (r["bezirk"], r["adresse"]))
     out = ["<table><tr><th>District</th><th>Address</th><th>Building</th><th>Type</th><th>Status</th></tr>"]
@@ -180,17 +205,58 @@ def references(g):
     return "\n".join(out)
 
 
+HOW = {"file": "Download it (right click, Save link as).",
+       "print": "Open it in a browser, choose Print, then Save as PDF."}
+
+
+def manual_steps():
+    """Walkthrough without the script. Built from SOURCES and ZIMS, so it always matches what the script gets."""
+    rows = []
+    for path, src in SOURCES.items():
+        if src.get == "repo":
+            continue
+        if src.get == "hesperian":
+            links = "<br>\n".join(f'<a href="{html.escape(u)}">{html.escape(u.rsplit("/", 1)[1])}</a>' for u in src.parts)
+            rows.append(f"<tr><td><code>{CHAPTERS}</code></td><td>Download all {len(src.parts)} chapter PDFs "
+                        f"(right click, Save link as):<details><summary>chapter list</summary>{links}</details></td></tr>")
+        else:
+            site = src.url.split("/")[2]
+            rows.append(f'<tr><td><code>{html.escape(path)}</code></td><td><a href="{html.escape(src.url)}">{html.escape(site)}</a>. {HOW[src.get]}</td></tr>')
+    zims = "\n".join(f'<li><code>{p}_YYYY-MM.zim</code> ({html.escape(n)}{"; optional" if opt else ""}): the newest one in '
+                     f'<a href="{KIWIX}{f}">{KIWIX}{f}</a></li>' for f, p, n, opt in ZIMS)
+    return f"""<ol>
+<li>Get this repo: on <a href="{REPO_URL}">its GitHub page</a> click Code, then Download ZIP. Unzip it.
+The files that may be shared are already in it.</li>
+<li>Save each file below into the unzipped folder, with exactly the folder and name shown:
+<table><tr><th>Save as</th><th>Where and how</th></tr>
+{chr(10).join(rows)}
+</table></li>
+<li>Install the Kiwix reader for your system from <a href="https://kiwix.org/en/applications/">kiwix.org/en/applications</a>.</li>
+<li>Download the offline wikis (ZIM files) into the folder. Open them with Kiwix.
+<ul>
+{zims}
+</ul></li>
+<li>Open the guide pages in the folder: this guide links to the original websites; the files sit next to it.
+(With Python installed, <code>python3 outage_guide.py local .</code> in the folder writes <code>START_HERE.html</code>, which links to the files.)</li>
+</ol>"""
+
+
 def library_section(g):
     if g.mode == "web":
-        return f"""<p>This page links to the sources online. On Linux, get them all offline, plus an offline Wikipedia reader:</p>
+        return f"""<p>This guide links to its sources online. Files that may be shared are in <a href="{REPO_URL}">the repo</a>.
+To have every source offline, plus offline wikis with a reader, use the script or the steps by hand.</p>
+<h3>With the script (Linux)</h3>
 <ol>
-<li>Install <code>git</code>, <code>curl</code>, <code>python3</code>, <code>poppler-utils</code> (for <code>pdfunite</code>) and Chrome or Chromium.</li>
+<li>Install <code>git</code>, <code>curl</code> and <code>python3</code>. Chrome or Chromium saves one web page as PDF.</li>
 <li>Run <code>git clone {REPO_URL}</code></li>
-<li>Run <code>berlin-outage-guide/download.sh ~/outage_library</code>. This gets about 2.6 GB. Add <code>--with-wikipedia</code> for the 2.6 GB general Wikipedia as well.</li>
-<li>Open <code>~/outage_library/START_HERE.html</code>. It is this guide, with every link going to a file on your disk.</li>
+<li>Run <code>berlin-outage-guide/download.sh</code>. It downloads about 2.6 GB into the cloned folder.
+Add <code>--with-wikipedia</code> for the 2.6 GB general Wikipedia as well. To use another folder, give it as the first argument.</li>
+<li>Open <code>berlin-outage-guide/START_HERE.html</code>. It is this guide, with every link going to a file on your disk.</li>
 </ol>
-<p>Medicine books: {g.a(WTND, "Where There Is No Doctor")}, {g.a("Where_There_Is_No_Dentist_2024.pdf", "Where There Is No Dentist")}.
-Checklists to stock up: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a("emergency_guides/FEMA_Are_You_Ready_2020.pdf", "FEMA Are You Ready")}.</p>"""
+<h3>By hand (Windows, Mac, or without the script)</h3>
+{manual_steps()}
+<p>Medicine books: {g.a(WTND, "Where There Is No Doctor")}, {g.a(DENT, "Where There Is No Dentist")}.
+Checklists to stock up: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a(FEMA_READY, "FEMA Are You Ready")}.</p>"""
     appimages = sorted(p.name for p in g.lib.glob("kiwix-desktop*.appimage"))
     reader = (f"run <code>{html.escape(appimages[-1])}</code> in this folder and open the <code>.zim</code> files with it"
               if appimages else "the Kiwix reader is missing; run download.sh again")
@@ -200,40 +266,24 @@ Checklists to stock up: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a("emergency_guid
 <li>Open the reader: {reader}.</li>
 <li>Search across all ZIM files: <code>kiwix-tools/kiwix-serve --port 8181 *.zim</code>, then open <code>http://127.0.0.1:8181</code> in a browser. This works offline.</li>
 <li>Useful searches: carbon monoxide poisoning, hypothermia, water purification, oral rehydration therapy, first aid, food preservation, solar cooker, rainwater harvesting.</li>
-<li>Medicine: {g.a(WTND, "Where There Is No Doctor")}, {g.a("Where_There_Is_No_Dentist_2024.pdf", "Where There Is No Dentist")}.</li>
-<li>Checklists to stock up before an outage: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a("emergency_guides/FEMA_Are_You_Ready_2020.pdf", "FEMA Are You Ready")}.</li>
+<li>Medicine: {g.a(WTND, "Where There Is No Doctor")}, {g.a(DENT, "Where There Is No Dentist")} (chapter PDFs in <code>{CHAPTERS}</code>).</li>
+<li>Checklists to stock up before an outage: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a(FEMA_READY, "FEMA Are You Ready")}.</li>
 </ul>"""
 
 
-def page(g, n_pumps, table, n_points):
+def body(g, n_pumps, table, n_points):
     a = g.a
     b = lambda p, t="BBK guide": a(BBK_EN, t, p)
     fema = "emergency_guides/FEMA_Power_Outage_sheet.pdf"
     cdc = "emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf"
-    strom = "berlin/berlin_stromausfall.txt"
-    rufn = "berlin/berlin_rufnummern.txt"
-    where = ("Links open the original sources online. The last section shows how to get all of them offline."
+    strom = "berlin/berlin_stromausfall.html"
+    rufn = "berlin/berlin_rufnummern.html"
+    where = ("Links open the original sources online, or the copy in this repo. The last section shows how to get all of them offline."
              if g.mode == "web" else "Every link opens a file in this folder; nothing needs the internet.")
-    return f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Berlin Outage Guide</title>
-<style>
-:root {{ --fg:#111; --bg:#fff; --muted:#555; --line:#ccc; --box:#f3f3f3; --warn:#fff3cd; }}
-@media (prefers-color-scheme: dark) {{ :root {{ --fg:#eee; --bg:#151515; --muted:#aaa; --line:#444; --box:#222; --warn:#3a3000; }} a {{ color:#8cf; }} }}
-body {{ font: 16px/1.45 system-ui, sans-serif; color:var(--fg); background:var(--bg); max-width:52rem; margin:0 auto; padding:1rem; }}
-h1 {{ margin-bottom:.2rem; }} h2 {{ border-top:2px solid var(--fg); padding-top:.6rem; margin-top:2rem; }}
-.src {{ color:var(--muted); font-size:.9em; }}
-.box {{ background:var(--box); border:1px solid var(--line); padding:.6rem 1rem; margin:.8rem 0; }}
-.warn {{ background:var(--warn); border:2px solid var(--fg); padding:.6rem 1rem; }}
-.scroll {{ overflow-x:auto; }}
-table {{ border-collapse:collapse; width:100%; font-size:.9em; }} td,th {{ border:1px solid var(--line); padding:.25rem .4rem; text-align:left; vertical-align:top; }}
-code {{ word-break:break-all; }}
-@media print {{ a {{ color:inherit; }} h2 {{ break-before:auto; }} }}
-</style></head><body>
-<h1>Power outage in Berlin: first minutes to first week</h1>
+    return f"""<h1>Power outage in Berlin: first minutes to first week</h1>
 <p class="warn"><b>Claude Opus 5.5, an AI model, wrote this entire guide. I am not responsible for your safety.
 Treat it as an unreviewed guide that may be incorrect. Still, it is better than nothing.
-If you run Linux, the download script also gets a large offline library (see the end of this page).</b></p>
+I also put together a large offline library: the last section shows how to download it, with a script on Linux or by hand.</b></p>
 <p class="src">Written 22 Nov 2026 for a 4th floor flat, two or three adults, radiator heating. {where}
 Grey "Source" lines name the document that backs each step.</p>
 
@@ -252,8 +302,8 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <ul>
 <li>Fire brigade and ambulance: <b>112</b>. Police: <b>110</b>. <span class="src">Source: {a(rufn, "berlin.de Rufnummern")}</span></li>
 <li>If 112 and 110 do not work: go to the nearest police station, fire station or Kat-Leuchtturm (list below). <span class="src">Source: {b(15)}; {a(strom, "berlin.de Stromausfall")}</span></li>
-<li>Medical on-call service (not an emergency): <b>116117</b>. <span class="src">Source: {a("berlin/116117.txt", "116117.de")}</span></li>
-<li>Poison line Berlin: <b>030 19240</b>. <span class="src">Source: {a("berlin/giftnotruf.txt", "Giftnotruf Charité")}</span></li>
+<li>Medical on-call service (not an emergency): <b>116117</b>. <span class="src">Source: {a("berlin/116117.html", "116117.de")}</span></li>
+<li>Poison line Berlin: <b>030 19240</b>. <span class="src">Source: {a("berlin/giftnotruf.html", "Giftnotruf Charité")}</span></li>
 <li>Police non-emergency line: <b>030 4664 4664</b>. <span class="src">Source: {a(rufn, "berlin.de Rufnummern")}</span></li>
 <li>Stromnetz Berlin power fault line: <b>0800 211 2525</b> (free). <span class="src">Source: stromnetz.berlin/kontakt, read on 21 Nov 2026. The site was offline on 22 Nov, so there is no saved copy.</span></li>
 <li>Radio (FM): <b>rbb 88.8 on 88.8 MHz</b>, <b>rbb24 Inforadio on 93.1 MHz</b>, radioeins 95.8 MHz. DAB+: channel 7D. A battery, solar or crank radio works when phone networks fail. <span class="src">Source: {a("berlin/rbb_frequenzen.html", "rbb frequencies")}; {b(15)}; radio types: {b(34, "BBK checklist")}</span></li>
@@ -289,17 +339,17 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <li>Food: a closed fridge keeps food safe for 4 hours. A full closed freezer: 48 hours; half full: 24 hours. Eat the fridge food first. If in doubt, throw it out. <span class="src">Source: {a(cdc, "CDC food safety", 1)}</span></li>
 <li>Toilet: if the tap water stops, do not flush. Seal the toilet shut. Use a bucket with a plastic bag and a lid. Put dry material in the bottom (sawdust, newspaper, leaves). Cover each use with sawdust, ash or similar. Use a second bucket for urine if you can. <span class="src">Source: {a("library_extracts/Wikipedia_Bucket_toilet.pdf", "Wikipedia: Bucket toilet")}; {a("emergency_guides/Emergency_Toilets_WREMO.pdf", "WREMO emergency toilets")}; {a("library_extracts/Wikipedia_Emergency_sanitation.pdf", "Wikipedia: Emergency sanitation")}</span></li>
 <li>Water: if the taps are dry, use Berlin's street hand pumps (Notbrunnen). {n_pumps} are in the map file {a("berlin/notbrunnen_hand_pumps.gpx", "notbrunnen_hand_pumps.gpx")}. Load it into Organic Maps or OsmAnd now, before an outage. Boil pump water for several minutes if you can. <span class="src">Source: pumps from OpenStreetMap, © OpenStreetMap contributors, ODbL ({a("berlin/notbrunnen_osm.csv", "CSV")}); boiling: {a("library_extracts/Appropedia_Water_supply_and_purification_for_emergencies.pdf", "Appropedia: Water supply and purification for emergencies")}</span></li>
-<li>Night: light and warmth. Sleep in clothes and a sleeping bag in your warm room. Know the signs of hypothermia (shivering, then confusion). <span class="src">Source: {a(WTND, "Where There Is No Doctor, cold emergencies", 457)}; {a("library_extracts/Wikipedia_Hypothermia.pdf", "Wikipedia: Hypothermia")}</span></li>
+<li>Night: light and warmth. Sleep in clothes and a sleeping bag in your warm room. Know the signs of hypothermia (shivering, then confusion). <span class="src">Source: {a(WTND, "Where There Is No Doctor, emergencies caused by cold", "cold")}; {a("library_extracts/Wikipedia_Hypothermia.pdf", "Wikipedia: Hypothermia")}</span></li>
 <li>Fire: leave the room, close the door, leave the building, call 112. <span class="src">Source: {b(26)}</span></li>
 </ol>
 
 <h2>First week</h2>
 <ol>
 <li>Drink at least 2 litres per person per day (0.5 litres of that for cooking). For 2 adults the 56 litre stock lasts 14 days; for 3 adults it lasts about 9 days. Count what is left on day 3 and day 7. <span class="src">Source: {b(9)}</span></li>
-<li>Diarrhoea: drink rehydration drink. 1 litre clean water, half a level teaspoon of salt, 8 level teaspoons of sugar. It must taste less salty than tears. <span class="src">Source: {a(WTND, "Where There Is No Doctor", 199)}</span></li>
+<li>Diarrhoea: drink rehydration drink. 1 litre clean water, half a level teaspoon of salt, 8 level teaspoons of sugar. It must taste less salty than tears. <span class="src">Source: {a(WTND, "Where There Is No Doctor, rehydration drink", "rehydration")}</span></li>
 <li>Stress and fear in you or others: the WHO guide shows how to help people calmly. <span class="src">Source: {a("emergency_guides/WHO_Psychological_First_Aid_2011.pdf", "WHO Psychological first aid")}</span></li>
 <li>Chemical or gas release outside: go inside, close windows and doors, go to upper floors. Radiation or explosions: go low, into inner rooms or the cellar, away from windows. <span class="src">Source: {b(30)}; {b(32)}</span></li>
-<li>For anything else, use the full library (last section). After one week you are in a different situation; this guide stops here.</li>
+<li>For anything else, use the offline library (last section). After one week you are in a different situation; this guide stops here.</li>
 </ol>
 
 <h2>Kat-Leuchttürme and info points ({n_points})</h2>
@@ -311,41 +361,84 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 
 <h2>The offline library</h2>
 {library_section(g)}
-</body></html>
 """
 
 
-def build(mode, lib=None):
+STYLE = """:root { --fg:#111; --bg:#fff; --muted:#555; --line:#ccc; --box:#f3f3f3; --warn:#fff3cd; }
+@media (prefers-color-scheme: dark) { :root { --fg:#eee; --bg:#151515; --muted:#aaa; --line:#444; --box:#222; --warn:#3a3000; } a { color:#8cf; } }
+body { font: 16px/1.45 system-ui, sans-serif; color:var(--fg); background:var(--bg); max-width:52rem; margin:0 auto; padding:1rem; }
+h1 { margin-bottom:.2rem; } h2 { border-top:2px solid var(--fg); padding-top:.6rem; margin-top:2rem; }
+.src { color:var(--muted); font-size:.9em; }
+.box { background:var(--box); border:1px solid var(--line); padding:.6rem 1rem; margin:.8rem 0; }
+.warn { background:var(--warn); border:2px solid var(--fg); padding:.6rem 1rem; }
+.scroll { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-size:.9em; } td,th { border:1px solid var(--line); padding:.25rem .4rem; text-align:left; vertical-align:top; }
+code { word-break:break-all; }
+@media print { a { color:inherit; } }"""
+
+
+def html_page(content):
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Berlin Outage Guide</title>
+<style>
+{STYLE}
+</style></head><body>
+{content}</body></html>
+"""
+
+
+def render(mode, lib=None):
     n_pumps = build_gpx()
     table, n_points = meeting_points_table()
     g = Guide(mode, lib)
-    if mode == "local":
+    return body(g, n_pumps, table, n_points), g.missing
+
+
+def gitignore():
+    """Files download.sh puts into this folder, so a clone stays clean after a download."""
+    downloaded = sorted({s.path for s in SOURCES.values() if s.get not in ("repo", "hesperian")})
+    return "\n".join(["# Generated by outage_guide.py build", "__pycache__/", "*.part", "*.part.*", "_chrome_profile/",
+                      "START_HERE.html", "*.zim", "*.appimage", "kiwix-tools/", CHAPTERS, *downloaded]) + "\n"
+
+
+def build_web():
+    content, missing = render("web")
+    assert not missing
+    (REPO / "index.html").write_text(html_page(content), encoding="utf-8")
+    # GitHub shows README.md as the repo front page; it drops the <style>, the text stays the same.
+    (REPO / "README.md").write_text("<!-- Generated by outage_guide.py build. Edit that file, not this one. -->\n" + content,
+                                    encoding="utf-8")
+    (REPO / ".gitignore").write_text(gitignore(), encoding="utf-8")
+    print("wrote index.html, README.md, .gitignore")
+
+
+def build_local(lib):
+    if lib != REPO:
         for path, src in SOURCES.items():
             if src.get == "repo":
                 (lib / path).parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(DATA / Path(path).name, lib / path)
-    out = (REPO / "index.html") if mode == "web" else (lib / "START_HERE.html")
-    out.write_text(page(g, n_pumps, table, n_points), encoding="utf-8")
-    print(f"wrote {out} ({n_points} meeting points, {n_pumps} pumps)")
-    if g.missing:
-        print(f"WARNING: {len(set(g.missing))} files missing, linked online instead: {sorted(set(g.missing))}", file=sys.stderr)
-    return g.missing
+                shutil.copyfile(REPO / path, lib / path)
+    content, missing = render("local", lib)
+    out = lib / "START_HERE.html"
+    out.write_text(html_page(content), encoding="utf-8")
+    print(f"wrote {out}")
+    if missing:
+        print(f"WARNING: {len(set(missing))} sources missing, linked online instead: {sorted(set(missing))}", file=sys.stderr)
+    return missing
 
 
 # ---------- download ----------
 
-def is_pdf(p):
-    return p.read_bytes()[:5] == b"%PDF-"
-
-
 def check(path):
     """Fails loudly when a downloaded file is empty or of the wrong type."""
     assert path.is_file() and path.stat().st_size > 0, f"empty download: {path}"
+    head = path.open("rb").read(5)
     if path.suffix == ".pdf":
-        assert is_pdf(path), f"not a PDF: {path}"
+        assert head == b"%PDF-", f"not a PDF: {path}"
     elif path.suffix == ".zim":
-        assert path.open("rb").read(4) == b"ZIM\x04", f"not a ZIM file: {path}"
-    elif path.suffix in (".html", ".txt"):
+        assert head[:4] == b"ZIM\x04", f"not a ZIM file: {path}"
+    elif path.suffix == ".html":
         assert path.stat().st_size > 500, f"page too small, probably an error page: {path}"
 
 
@@ -359,35 +452,19 @@ def curl(url, dest, resume=False):
     return part
 
 
-def fetch(url, dest, resume=False):
-    tmp_named = dest.with_name(dest.stem + ".part" + dest.suffix)  # keeps the suffix, so check() knows the type
-    curl(url, dest, resume).rename(tmp_named)
+def fetch(url, dest):
+    tmp = dest.with_name(dest.stem + ".part" + dest.suffix)  # keeps the suffix, so check() knows the type
+    curl(url, dest).rename(tmp)
     try:
-        check(tmp_named)
+        check(tmp)
     except AssertionError:
-        tmp_named.unlink()
+        tmp.unlink()
         raise
-    tmp_named.rename(dest)
+    tmp.rename(dest)
 
 
 def listing(url):
     return subprocess.run(["curl", "-fsL", "-A", UA, url], check=True, capture_output=True, text=True).stdout
-
-
-class TextOnly(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.parts, self.skip = [], 0
-
-    def handle_starttag(self, tag, attrs):
-        self.skip += tag in ("script", "style", "noscript")
-
-    def handle_endtag(self, tag):
-        self.skip -= tag in ("script", "style", "noscript") and self.skip > 0
-
-    def handle_data(self, data):
-        if not self.skip and data.strip():
-            self.parts.append(data.strip())
 
 
 def find_chrome():
@@ -413,33 +490,14 @@ def print_page(url, dest, lib):
 
 
 def get_source(src, lib):
-    dest = lib / src.path
     if src.get == "file":
-        fetch(src.url, dest)
+        fetch(src.url, lib / src.path)
     elif src.get == "print":
-        print_page(src.url, dest, lib)
-    elif src.get == "text":
-        page_html = dest.with_suffix(".html")
-        fetch(src.url, page_html)
-        parser = TextOnly()
-        parser.feed(page_html.read_text(encoding="utf-8", errors="replace"))
-        dest.write_text("\n".join(parser.parts) + "\n", encoding="utf-8")
-        check(dest)
+        print_page(src.url, lib / src.path, lib)
     elif src.get == "hesperian":
-        chapters = lib / "hesperian_chapters"
-        files = []
         for url in src.parts:
-            f = chapters / url.rsplit("/", 1)[1]
-            if not (f.is_file() and is_pdf(f)):
-                fetch(url, f)
-            files.append(str(f))
-        assert shutil.which("pdfunite"), "pdfunite is needed to merge the Hesperian chapters; install poppler-utils"
-        tmp = dest.with_name(dest.stem + ".part.pdf")
-        subprocess.run(["pdfunite", *files, str(tmp)], check=True)
-        check(tmp)
-        tmp.rename(dest)
-    elif src.get == "repo":
-        pass  # build() copies repo data files
+            if not (lib / chapter_path(url)).is_file():
+                fetch(url, lib / chapter_path(url))
     else:
         raise AssertionError(f"unknown download method {src.get}")
 
@@ -508,7 +566,7 @@ def download(lib, with_wikipedia):
             print(f"FAIL {label}: {e}", file=sys.stderr)
 
     for path, src in SOURCES.items():
-        if src.get == "repo" or (lib / path).is_file():
+        if src.get == "repo" or all((lib / f).is_file() for f in src.local_files()):
             continue
         attempt(path, get_source, src, lib)
     attempt("Kiwix reader and kiwix-serve", get_kiwix, lib)
@@ -517,7 +575,7 @@ def download(lib, with_wikipedia):
             print(f"skip {prefix} ({note}); add --with-wikipedia to get it")
             continue
         attempt(f"{prefix} ({note})", get_zim, folder, prefix, lib)
-    missing = build("local", lib)
+    missing = build_local(lib)
     if failed or missing:
         print(f"\n{len(failed)} downloads FAILED: {failed}\nRun the script again to retry them.", file=sys.stderr)
         sys.exit(1)
@@ -527,16 +585,16 @@ def download(lib, with_wikipedia):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("web")
+    sub.add_parser("build")
     sub.add_parser("local").add_argument("dir", type=Path)
     d = sub.add_parser("download")
-    d.add_argument("dir", type=Path)
+    d.add_argument("dir", type=Path, nargs="?", default=REPO)
     d.add_argument("--with-wikipedia", action="store_true", help="also get the 2.6 GB general Wikipedia")
     args = ap.parse_args()
-    if args.cmd == "web":
-        build("web")
+    if args.cmd == "build":
+        build_web()
     elif args.cmd == "local":
-        build("local", args.dir.expanduser().resolve())
+        build_local(args.dir.expanduser().resolve())
     else:
         download(args.dir.expanduser().resolve(), args.with_wikipedia)
 

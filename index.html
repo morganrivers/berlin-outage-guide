@@ -12,13 +12,13 @@ h1 { margin-bottom:.2rem; } h2 { border-top:2px solid var(--fg); padding-top:.6r
 .scroll { overflow-x:auto; }
 table { border-collapse:collapse; width:100%; font-size:.9em; } td,th { border:1px solid var(--line); padding:.25rem .4rem; text-align:left; vertical-align:top; }
 code { word-break:break-all; }
-@media print { a { color:inherit; } h2 { break-before:auto; } }
+@media print { a { color:inherit; } }
 </style></head><body>
 <h1>Power outage in Berlin: first minutes to first week</h1>
 <p class="warn"><b>Claude Opus 5.5, an AI model, wrote this entire guide. I am not responsible for your safety.
 Treat it as an unreviewed guide that may be incorrect. Still, it is better than nothing.
-If you run Linux, the download script also gets a large offline library (see the end of this page).</b></p>
-<p class="src">Written 22 Nov 2026 for a 4th floor flat, two or three adults, radiator heating. Links open the original sources online. The last section shows how to get all of them offline.
+I also put together a large offline library: the last section shows how to download it, with a script on Linux or by hand.</b></p>
+<p class="src">Written 22 Nov 2026 for a 4th floor flat, two or three adults, radiator heating. Links open the original sources online, or the copy in this repo. The last section shows how to get all of them offline.
 Grey "Source" lines name the document that backs each step.</p>
 
 <div class="box"><b>Supplies to keep (28 person-days)</b>
@@ -46,10 +46,10 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <h2>First minutes</h2>
 <ol>
 <li>Check if only your flat is dark. Look at the stairwell light and the windows across the street. If only your flat is dark, check your fuse box (Sicherungskasten). <span class="src">No source: common practice.</span></li>
-<li>Use a torch or battery light. Do not heat with candles or a gas stove. <span class="src">Source: <a href="https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf#page=2">FEMA power outage sheet, PDF page 2</a></span></li>
-<li>Unplug appliances and electronics. A power surge can damage them when the power comes back. <span class="src">Source: <a href="https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf#page=1">FEMA power outage sheet, PDF page 1</a></span></li>
+<li>Use a torch or battery light. Do not heat with candles or a gas stove. <span class="src">Source: <a href="emergency_guides/FEMA_Power_Outage_sheet.pdf#page=2">FEMA power outage sheet, PDF page 2</a></span></li>
+<li>Unplug appliances and electronics. A power surge can damage them when the power comes back. <span class="src">Source: <a href="emergency_guides/FEMA_Power_Outage_sheet.pdf#page=1">FEMA power outage sheet, PDF page 1</a></span></li>
 <li>Leave one lamp switched on, so you see when power returns. <span class="src">No source: common practice.</span></li>
-<li>Keep the fridge and freezer closed. <span class="src">Source: <a href="https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html">CDC food safety</a></span></li>
+<li>Keep the fridge and freezer closed. <span class="src">Source: <a href="emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf#page=1">CDC food safety, PDF page 1</a></span></li>
 <li>Fill water now, while the tap still runs: bathtub, pots, bottles. Waterworks need electricity; without it the water supply fails. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=6">BBK guide, PDF page 6</a>; amounts on <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=9">BBK guide, PDF page 9</a></span></li>
 <li>Switch the phone to power saving mode. Send one short message to the people who need to know you are fine. Networks can fail soon after the power. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=14">BBK guide, PDF page 14</a></span></li>
 <li>Turn on the radio for official information. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=15">BBK guide, PDF page 15</a></span></li>
@@ -60,7 +60,7 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <ol>
 <li>Expect the radiators to go cold. Central heating needs electricity for its pumps and controls. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=25">BBK guide, PDF page 25</a></span></li>
 <li>Dress warm. Pick one room, close its doors, stay there. Air it briefly (a few minutes, window wide open) a few times a day. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=25">BBK guide, PDF page 25</a>; <a href="https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php">berlin.de Stromausfall</a></span></li>
-<li><b>Never use a camping stove, barbecue, generator or gas heater indoors unless it is approved for indoor use.</b> Carbon monoxide kills without warning. Its signs are flu-like symptoms. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=24">BBK guide, PDF page 24</a>; <a href="https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf#page=2">FEMA power outage sheet, PDF page 2</a>; <a href="https://en.wikipedia.org/wiki/Carbon_monoxide_poisoning">Wikipedia: Carbon monoxide poisoning</a></span></li>
+<li><b>Never use a camping stove, barbecue, generator or gas heater indoors unless it is approved for indoor use.</b> Carbon monoxide kills without warning. Its signs are flu-like symptoms. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=24">BBK guide, PDF page 24</a>; <a href="emergency_guides/FEMA_Power_Outage_sheet.pdf#page=2">FEMA power outage sheet, PDF page 2</a>; <a href="library_extracts/Wikipedia_Carbon_monoxide_poisoning.pdf">Wikipedia: Carbon monoxide poisoning</a></span></li>
 <li>Cooking indoors without power: tea light warmer or fondue set for small amounts. Camping gas stoves: outdoors only. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=24">BBK guide, PDF page 24</a></span></li>
 <li>Get cash if a shop or bank still works. ATMs and card payment fail without power. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=7">BBK guide, PDF page 7</a>; <a href="https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php">berlin.de Stromausfall</a></span></li>
 <li>Tell your neighbours what you know. Not everyone gets the warnings. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=13">BBK guide, PDF page 13</a></span></li>
@@ -70,24 +70,24 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <h2>First day</h2>
 <ol>
 <li>Go to a Kat-Leuchtturm for news, emergency calls and help. The districts open them in long outages. <span class="src">Source: <a href="https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php">berlin.de Stromausfall</a></span></li>
-<li>Food: a closed fridge keeps food safe for 4 hours. A full closed freezer: 48 hours; half full: 24 hours. Eat the fridge food first. If in doubt, throw it out. <span class="src">Source: <a href="https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html">CDC food safety</a></span></li>
-<li>Toilet: if the tap water stops, do not flush. Seal the toilet shut. Use a bucket with a plastic bag and a lid. Put dry material in the bottom (sawdust, newspaper, leaves). Cover each use with sawdust, ash or similar. Use a second bucket for urine if you can. <span class="src">Source: <a href="https://en.wikipedia.org/wiki/Bucket_toilet">Wikipedia: Bucket toilet</a>; <a href="https://www.wremo.nz/get-ready/home-ready/emergency-toilets">WREMO emergency toilets</a>; <a href="https://en.wikipedia.org/wiki/Emergency_sanitation">Wikipedia: Emergency sanitation</a></span></li>
-<li>Water: if the taps are dry, use Berlin's street hand pumps (Notbrunnen). 1982 are in the map file <a href="data/notbrunnen_hand_pumps.gpx">notbrunnen_hand_pumps.gpx</a>. Load it into Organic Maps or OsmAnd now, before an outage. Boil pump water for several minutes if you can. <span class="src">Source: pumps from OpenStreetMap, © OpenStreetMap contributors, ODbL (<a href="data/notbrunnen_osm.csv">CSV</a>); boiling: <a href="https://www.appropedia.org/Water_supply_and_purification_for_emergencies">Appropedia: Water supply and purification for emergencies</a></span></li>
-<li>Night: light and warmth. Sleep in clothes and a sleeping bag in your warm room. Know the signs of hypothermia (shivering, then confusion). <span class="src">Source: <a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_info.pdf#page=10">Where There Is No Doctor, cold emergencies, PDF page 457</a>; <a href="https://en.wikipedia.org/wiki/Hypothermia">Wikipedia: Hypothermia</a></span></li>
+<li>Food: a closed fridge keeps food safe for 4 hours. A full closed freezer: 48 hours; half full: 24 hours. Eat the fridge food first. If in doubt, throw it out. <span class="src">Source: <a href="emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf#page=1">CDC food safety, PDF page 1</a></span></li>
+<li>Toilet: if the tap water stops, do not flush. Seal the toilet shut. Use a bucket with a plastic bag and a lid. Put dry material in the bottom (sawdust, newspaper, leaves). Cover each use with sawdust, ash or similar. Use a second bucket for urine if you can. <span class="src">Source: <a href="library_extracts/Wikipedia_Bucket_toilet.pdf">Wikipedia: Bucket toilet</a>; <a href="https://www.wremo.nz/get-ready/home-ready/emergency-toilets">WREMO emergency toilets</a>; <a href="library_extracts/Wikipedia_Emergency_sanitation.pdf">Wikipedia: Emergency sanitation</a></span></li>
+<li>Water: if the taps are dry, use Berlin's street hand pumps (Notbrunnen). 1982 are in the map file <a href="berlin/notbrunnen_hand_pumps.gpx">notbrunnen_hand_pumps.gpx</a>. Load it into Organic Maps or OsmAnd now, before an outage. Boil pump water for several minutes if you can. <span class="src">Source: pumps from OpenStreetMap, © OpenStreetMap contributors, ODbL (<a href="berlin/notbrunnen_osm.csv">CSV</a>); boiling: <a href="library_extracts/Appropedia_Water_supply_and_purification_for_emergencies.pdf">Appropedia: Water supply and purification for emergencies</a></span></li>
+<li>Night: light and warmth. Sleep in clothes and a sleeping bag in your warm room. Know the signs of hypothermia (shivering, then confusion). <span class="src">Source: <a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_info.pdf#page=10">Where There Is No Doctor, emergencies caused by cold</a>; <a href="library_extracts/Wikipedia_Hypothermia.pdf">Wikipedia: Hypothermia</a></span></li>
 <li>Fire: leave the room, close the door, leave the building, call 112. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=26">BBK guide, PDF page 26</a></span></li>
 </ol>
 
 <h2>First week</h2>
 <ol>
 <li>Drink at least 2 litres per person per day (0.5 litres of that for cooking). For 2 adults the 56 litre stock lasts 14 days; for 3 adults it lasts about 9 days. Count what is left on day 3 and day 7. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=9">BBK guide, PDF page 9</a></span></li>
-<li>Diarrhoea: drink rehydration drink. 1 litre clean water, half a level teaspoon of salt, 8 level teaspoons of sugar. It must taste less salty than tears. <span class="src">Source: <a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_13.pdf#page=2">Where There Is No Doctor, PDF page 199</a></span></li>
+<li>Diarrhoea: drink rehydration drink. 1 litre clean water, half a level teaspoon of salt, 8 level teaspoons of sugar. It must taste less salty than tears. <span class="src">Source: <a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_13.pdf#page=2">Where There Is No Doctor, rehydration drink</a></span></li>
 <li>Stress and fear in you or others: the WHO guide shows how to help people calmly. <span class="src">Source: <a href="https://mhpsshub.org/wp-content/uploads/2018/10/9789241548205_eng.pdf">WHO Psychological first aid</a></span></li>
 <li>Chemical or gas release outside: go inside, close windows and doors, go to upper floors. Radiation or explosions: go low, into inner rooms or the cellar, away from windows. <span class="src">Source: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=30">BBK guide, PDF page 30</a>; <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=32">BBK guide, PDF page 32</a></span></li>
-<li>For anything else, use the full library (last section). After one week you are in a different situation; this guide stops here.</li>
+<li>For anything else, use the offline library (last section). After one week you are in a different situation; this guide stops here.</li>
 </ol>
 
 <h2>Kat-Leuchttürme and info points (73)</h2>
-<p class="src">"Planned only" locations may not open. Source: <a href="data/kat_leuchttuerme.csv">kat_leuchttuerme.csv</a>, from berlin.de, Nov 2026.</p>
+<p class="src">"Planned only" locations may not open. Source: <a href="berlin/kat_leuchttuerme.csv">kat_leuchttuerme.csv</a>, from berlin.de, Nov 2026.</p>
 <div class="scroll"><table><tr><th>District</th><th>Address</th><th>Building</th><th>Type</th><th>Status</th></tr>
 <tr><td>Charlottenburg-Wilmersdorf</td><td>Hohenzollerndamm 174-177, 10713 Berlin</td><td>Bürodienstgebäude</td><td>Leuchtturm (staffed)</td><td>ready</td></tr>
 <tr><td>Charlottenburg-Wilmersdorf</td><td>Otto-Suhr-Allee 100, 10585 Berlin</td><td>Rathaus Charlottenburg</td><td>Leuchtturm (staffed)</td><td>ready</td></tr>
@@ -168,37 +168,118 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <div class="scroll"><table><tr><th>File</th><th>What it is</th><th>Original source</th></tr>
 <tr><td><a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf">emergency_guides/BBK_Planning_ahead_for_crises_and_disasters_2025_EN.pdf</a></td><td>BBK (German federal civil protection office): Planning ahead for crises and disasters, English, Nov 2025</td><td><code>https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf</code></td></tr>
 <tr><td><a href="https://epflicht.ulb.uni-bonn.de/download/pdf/786332">emergency_guides/BBK_Stromausfall_Vorsorge_und_Selbsthilfe_DE.pdf</a></td><td>BBK: Stromausfall, Vorsorge und Selbsthilfe (German, older)</td><td><code>https://epflicht.ulb.uni-bonn.de/download/pdf/786332</code></td></tr>
-<tr><td><a href="https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf">emergency_guides/FEMA_Power_Outage_sheet.pdf</a></td><td>FEMA: Be prepared for a power outage, V-1008, Dec 2023</td><td><code>https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf</code></td></tr>
-<tr><td><a href="https://www.ready.gov/sites/default/files/2021-03/are-you-ready-guide.pdf">emergency_guides/FEMA_Are_You_Ready_2020.pdf</a></td><td>FEMA: Are You Ready? (US citizen preparedness guide; US government work, public domain, copy in this repo because ready.gov blocks scripts)</td><td><code>https://www.ready.gov/sites/default/files/2021-03/are-you-ready-guide.pdf</code></td></tr>
-<tr><td><a href="https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html">emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf</a></td><td>CDC: Keep food safe after a disaster or emergency (web page saved as PDF)</td><td><code>https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html</code></td></tr>
+<tr><td><a href="emergency_guides/FEMA_Power_Outage_sheet.pdf">emergency_guides/FEMA_Power_Outage_sheet.pdf</a></td><td>FEMA: Be prepared for a power outage, V-1008, Dec 2023 (US government work, public domain)</td><td><code>https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf</code></td></tr>
+<tr><td><a href="emergency_guides/FEMA_Are_You_Ready_2020.pdf">emergency_guides/FEMA_Are_You_Ready_2020.pdf</a></td><td>FEMA: Are You Ready? US citizen preparedness guide (US government work, public domain)</td><td><code>https://www.ready.gov/sites/default/files/2021-03/are-you-ready-guide.pdf</code></td></tr>
+<tr><td><a href="emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf">emergency_guides/CDC_Keep_Food_Safe_After_Disaster.pdf</a></td><td>CDC: Keep food safe after a disaster or emergency (US government work, public domain; web page saved as PDF)</td><td><code>https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html</code></td></tr>
 <tr><td><a href="https://www.wremo.nz/get-ready/home-ready/emergency-toilets">emergency_guides/Emergency_Toilets_WREMO.pdf</a></td><td>WREMO (Wellington, NZ): Emergency toilets, two bucket method (web page saved as PDF; its folded question and answer sections do not print)</td><td><code>https://www.wremo.nz/get-ready/home-ready/emergency-toilets</code></td></tr>
 <tr><td><a href="https://mhpsshub.org/wp-content/uploads/2018/10/9789241548205_eng.pdf">emergency_guides/WHO_Psychological_First_Aid_2011.pdf</a></td><td>WHO: Psychological first aid, guide for field workers, 2011</td><td><code>https://mhpsshub.org/wp-content/uploads/2018/10/9789241548205_eng.pdf</code></td></tr>
-<tr><td><a href="https://languages.hesperian.org/pages/en/pdf.html">Where_There_Is_No_Doctor_2025.pdf</a></td><td>Hesperian: Where There Is No Doctor, 2025 (chapter PDFs merged into one)</td><td><code>https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/</code></td></tr>
-<tr><td><a href="https://languages.hesperian.org/pages/en/pdf.html">Where_There_Is_No_Dentist_2024.pdf</a></td><td>Hesperian: Where There Is No Dentist, 2024 (chapter PDFs merged into one)</td><td><code>https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/</code></td></tr>
+<tr><td><a href="https://languages.hesperian.org/pages/en/pdf.html">hesperian_chapters/en_wtnd_2025_toc.pdf</a></td><td>Hesperian: Where There Is No Doctor, 2025 (32 chapter PDFs in hesperian_chapters/; this one is the contents)</td><td><code>https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/</code></td></tr>
+<tr><td><a href="https://languages.hesperian.org/pages/en/pdf.html">hesperian_chapters/en_dent_2024_fm.pdf</a></td><td>Hesperian: Where There Is No Dentist, 2024 (14 chapter PDFs in hesperian_chapters/; this one opens the book)</td><td><code>https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/</code></td></tr>
 <tr><td><a href="https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/druckdatei-flyer---informationen-und-hinweise-fuer-die-bevoelkerung-bei-gefahrenlagen.pdf">berlin/Berlin_Flyer_Gefahrenlagen.pdf</a></td><td>Berlin Senate: flyer, information for the public in dangerous situations (German)</td><td><code>https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/druckdatei-flyer---informationen-und-hinweise-fuer-die-bevoelkerung-bei-gefahrenlagen.pdf</code></td></tr>
-<tr><td><a href="https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php">berlin/berlin_stromausfall.txt</a></td><td>berlin.de: Vorsorge und Verhalten bei Stromausfall (text copy; .html copy next to it)</td><td><code>https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php</code></td></tr>
-<tr><td><a href="https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php">berlin/berlin_rufnummern.txt</a></td><td>berlin.de: Wichtige Rufnummern (text copy; .html copy next to it)</td><td><code>https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php</code></td></tr>
+<tr><td><a href="https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php">berlin/berlin_stromausfall.html</a></td><td>berlin.de: Vorsorge und Verhalten bei Stromausfall (saved web page)</td><td><code>https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php</code></td></tr>
+<tr><td><a href="https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php">berlin/berlin_rufnummern.html</a></td><td>berlin.de: Wichtige Rufnummern (saved web page)</td><td><code>https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php</code></td></tr>
 <tr><td><a href="https://www.rbb-online.de/radio/frequenzen/">berlin/rbb_frequenzen.html</a></td><td>rbb: radio frequencies (saved web page)</td><td><code>https://www.rbb-online.de/radio/frequenzen/</code></td></tr>
-<tr><td><a href="https://giftnotruf.charite.de/">berlin/giftnotruf.txt</a></td><td>Giftnotruf Berlin, Charité (poison line, text copy)</td><td><code>https://giftnotruf.charite.de/</code></td></tr>
-<tr><td><a href="https://www.116117.de/de/index.php">berlin/116117.txt</a></td><td>116117: medical on-call service (text copy)</td><td><code>https://www.116117.de/de/index.php</code></td></tr>
-<tr><td><a href="data/kat_leuchttuerme.csv">berlin/kat_leuchttuerme.csv</a></td><td>berlin.de: Katastrophenschutz-Leuchttürme, all 73 locations (CSV export, Nov 2026)</td><td><code>https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/anlaufstellen-fuer-die-bevoelkerung/</code></td></tr>
-<tr><td><a href="data/notbrunnen_osm.csv">berlin/notbrunnen_osm.csv</a></td><td>Manual water pumps in Berlin, © OpenStreetMap contributors, ODbL licence (Overpass export, CSV, Nov 2026)</td><td><code>https://www.openstreetmap.org/copyright</code></td></tr>
-<tr><td><a href="data/notbrunnen_hand_pumps.gpx">berlin/notbrunnen_hand_pumps.gpx</a></td><td>Same pumps as GPX for offline map apps, made from the CSV above (© OpenStreetMap contributors, ODbL)</td><td><code>https://www.openstreetmap.org/copyright</code></td></tr>
-<tr><td><a href="https://en.wikipedia.org/wiki/Bucket_toilet">library_extracts/Wikipedia_Bucket_toilet.pdf</a></td><td>Wikipedia article Bucket toilet (CC BY-SA), saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Bucket_toilet</code></td></tr>
-<tr><td><a href="https://en.wikipedia.org/wiki/Emergency_sanitation">library_extracts/Wikipedia_Emergency_sanitation.pdf</a></td><td>Wikipedia article Emergency sanitation (CC BY-SA), saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Emergency_sanitation</code></td></tr>
-<tr><td><a href="https://en.wikipedia.org/wiki/Carbon_monoxide_poisoning">library_extracts/Wikipedia_Carbon_monoxide_poisoning.pdf</a></td><td>Wikipedia article Carbon monoxide poisoning (CC BY-SA), saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Carbon_monoxide_poisoning</code></td></tr>
-<tr><td><a href="https://en.wikipedia.org/wiki/Hypothermia">library_extracts/Wikipedia_Hypothermia.pdf</a></td><td>Wikipedia article Hypothermia (CC BY-SA), saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Hypothermia</code></td></tr>
-<tr><td><a href="https://www.appropedia.org/Water_supply_and_purification_for_emergencies">library_extracts/Appropedia_Water_supply_and_purification_for_emergencies.pdf</a></td><td>Appropedia article Water supply and purification for emergencies (CC BY-SA), saved as PDF</td><td><code>https://www.appropedia.org/Water_supply_and_purification_for_emergencies</code></td></tr>
+<tr><td><a href="https://giftnotruf.charite.de/">berlin/giftnotruf.html</a></td><td>Giftnotruf Berlin, Charité (poison line, saved web page)</td><td><code>https://giftnotruf.charite.de/</code></td></tr>
+<tr><td><a href="https://www.116117.de/de/index.php">berlin/116117.html</a></td><td>116117: medical on-call service (saved web page)</td><td><code>https://www.116117.de/de/index.php</code></td></tr>
+<tr><td><a href="berlin/kat_leuchttuerme.csv">berlin/kat_leuchttuerme.csv</a></td><td>berlin.de: Katastrophenschutz-Leuchttürme, all 73 locations (list of addresses, Nov 2026)</td><td><code>https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/anlaufstellen-fuer-die-bevoelkerung/</code></td></tr>
+<tr><td><a href="berlin/notbrunnen_osm.csv">berlin/notbrunnen_osm.csv</a></td><td>Manual water pumps in Berlin, © OpenStreetMap contributors, ODbL licence (Overpass export, Nov 2026)</td><td><code>https://www.openstreetmap.org/copyright</code></td></tr>
+<tr><td><a href="berlin/notbrunnen_hand_pumps.gpx">berlin/notbrunnen_hand_pumps.gpx</a></td><td>Same pumps as GPX for offline map apps, made from the CSV above (© OpenStreetMap contributors, ODbL)</td><td><code>https://www.openstreetmap.org/copyright</code></td></tr>
+<tr><td><a href="library_extracts/Wikipedia_Bucket_toilet.pdf">library_extracts/Wikipedia_Bucket_toilet.pdf</a></td><td>Wikipedia article Bucket toilet, CC BY-SA licence, saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Bucket_toilet</code></td></tr>
+<tr><td><a href="library_extracts/Wikipedia_Emergency_sanitation.pdf">library_extracts/Wikipedia_Emergency_sanitation.pdf</a></td><td>Wikipedia article Emergency sanitation, CC BY-SA licence, saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Emergency_sanitation</code></td></tr>
+<tr><td><a href="library_extracts/Wikipedia_Carbon_monoxide_poisoning.pdf">library_extracts/Wikipedia_Carbon_monoxide_poisoning.pdf</a></td><td>Wikipedia article Carbon monoxide poisoning, CC BY-SA licence, saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Carbon_monoxide_poisoning</code></td></tr>
+<tr><td><a href="library_extracts/Wikipedia_Hypothermia.pdf">library_extracts/Wikipedia_Hypothermia.pdf</a></td><td>Wikipedia article Hypothermia, CC BY-SA licence, saved as PDF</td><td><code>https://en.wikipedia.org/wiki/Hypothermia</code></td></tr>
+<tr><td><a href="library_extracts/Appropedia_Water_supply_and_purification_for_emergencies.pdf">library_extracts/Appropedia_Water_supply_and_purification_for_emergencies.pdf</a></td><td>Appropedia article Water supply and purification for emergencies, CC BY-SA licence, saved as PDF</td><td><code>https://www.appropedia.org/Water_supply_and_purification_for_emergencies</code></td></tr>
 </table></div>
 
 <h2>The offline library</h2>
-<p>This page links to the sources online. On Linux, get them all offline, plus an offline Wikipedia reader:</p>
+<p>This guide links to its sources online. Files that may be shared are in <a href="https://github.com/morganrivers/berlin-outage-guide">the repo</a>.
+To have every source offline, plus offline wikis with a reader, use the script or the steps by hand.</p>
+<h3>With the script (Linux)</h3>
 <ol>
-<li>Install <code>git</code>, <code>curl</code>, <code>python3</code>, <code>poppler-utils</code> (for <code>pdfunite</code>) and Chrome or Chromium.</li>
+<li>Install <code>git</code>, <code>curl</code> and <code>python3</code>. Chrome or Chromium saves one web page as PDF.</li>
 <li>Run <code>git clone https://github.com/morganrivers/berlin-outage-guide</code></li>
-<li>Run <code>berlin-outage-guide/download.sh ~/outage_library</code>. This gets about 2.6 GB. Add <code>--with-wikipedia</code> for the 2.6 GB general Wikipedia as well.</li>
-<li>Open <code>~/outage_library/START_HERE.html</code>. It is this guide, with every link going to a file on your disk.</li>
+<li>Run <code>berlin-outage-guide/download.sh</code>. It downloads about 2.6 GB into the cloned folder.
+Add <code>--with-wikipedia</code> for the 2.6 GB general Wikipedia as well. To use another folder, give it as the first argument.</li>
+<li>Open <code>berlin-outage-guide/START_HERE.html</code>. It is this guide, with every link going to a file on your disk.</li>
+</ol>
+<h3>By hand (Windows, Mac, or without the script)</h3>
+<ol>
+<li>Get this repo: on <a href="https://github.com/morganrivers/berlin-outage-guide">its GitHub page</a> click Code, then Download ZIP. Unzip it.
+The files that may be shared are already in it.</li>
+<li>Save each file below into the unzipped folder, with exactly the folder and name shown:
+<table><tr><th>Save as</th><th>Where and how</th></tr>
+<tr><td><code>emergency_guides/BBK_Planning_ahead_for_crises_and_disasters_2025_EN.pdf</code></td><td><a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf">www.ettlingen.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>emergency_guides/BBK_Stromausfall_Vorsorge_und_Selbsthilfe_DE.pdf</code></td><td><a href="https://epflicht.ulb.uni-bonn.de/download/pdf/786332">epflicht.ulb.uni-bonn.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>emergency_guides/Emergency_Toilets_WREMO.pdf</code></td><td><a href="https://www.wremo.nz/get-ready/home-ready/emergency-toilets">www.wremo.nz</a>. Open it in a browser, choose Print, then Save as PDF.</td></tr>
+<tr><td><code>emergency_guides/WHO_Psychological_First_Aid_2011.pdf</code></td><td><a href="https://mhpsshub.org/wp-content/uploads/2018/10/9789241548205_eng.pdf">mhpsshub.org</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>hesperian_chapters/</code></td><td>Download all 32 chapter PDFs (right click, Save link as):<details><summary>chapter list</summary><a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_fm.pdf">en_wtnd_2025_fm.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_toc.pdf">en_wtnd_2025_toc.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_int.pdf">en_wtnd_2025_int.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_01.pdf">en_wtnd_2025_01.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_02.pdf">en_wtnd_2025_02.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_03.pdf">en_wtnd_2025_03.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_04.pdf">en_wtnd_2025_04.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_05.pdf">en_wtnd_2025_05.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_06.pdf">en_wtnd_2025_06.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_07.pdf">en_wtnd_2025_07.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_08.pdf">en_wtnd_2025_08.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_09.pdf">en_wtnd_2025_09.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_10.pdf">en_wtnd_2025_10.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_11.pdf">en_wtnd_2025_11.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_12.pdf">en_wtnd_2025_12.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_13.pdf">en_wtnd_2025_13.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_14.pdf">en_wtnd_2025_14.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_15.pdf">en_wtnd_2025_15.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_16.pdf">en_wtnd_2025_16.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_17.pdf">en_wtnd_2025_17.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_18.pdf">en_wtnd_2025_18.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_19.pdf">en_wtnd_2025_19.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_20.pdf">en_wtnd_2025_20.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_21.pdf">en_wtnd_2025_21.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_22.pdf">en_wtnd_2025_22.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_23.pdf">en_wtnd_2025_23.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_gp.pdf">en_wtnd_2025_gp.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_info.pdf">en_wtnd_2025_info.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_gloss.pdf">en_wtnd_2025_gloss.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_resc.pdf">en_wtnd_2025_resc.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_indx.pdf">en_wtnd_2025_indx.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_wtnd_2025/en_wtnd_2025_bm.pdf">en_wtnd_2025_bm.pdf</a></details></td></tr>
+<tr><td><code>hesperian_chapters/</code></td><td>Download all 14 chapter PDFs (right click, Save link as):<details><summary>chapter list</summary><a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_fm.pdf">en_dent_2024_fm.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_01.pdf">en_dent_2024_01.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_02.pdf">en_dent_2024_02.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_03.pdf">en_dent_2024_03.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_04.pdf">en_dent_2024_04.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_05.pdf">en_dent_2024_05.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_06.pdf">en_dent_2024_06.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_07.pdf">en_dent_2024_07.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_08.pdf">en_dent_2024_08.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_09.pdf">en_dent_2024_09.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_10.pdf">en_dent_2024_10.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_11.pdf">en_dent_2024_11.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_12.pdf">en_dent_2024_12.pdf</a><br>
+<a href="https://hesperian.org/wp-content/uploads/pdf/en_dent_2024/en_dent_2024_bm.pdf">en_dent_2024_bm.pdf</a></details></td></tr>
+<tr><td><code>berlin/Berlin_Flyer_Gefahrenlagen.pdf</code></td><td><a href="https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/druckdatei-flyer---informationen-und-hinweise-fuer-die-bevoelkerung-bei-gefahrenlagen.pdf">www.berlin.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>berlin/berlin_stromausfall.html</code></td><td><a href="https://www.berlin.de/katastrophenschutz/notfallvorsorge/stromausfall/artikel.1653256.php">www.berlin.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>berlin/berlin_rufnummern.html</code></td><td><a href="https://www.berlin.de/katastrophenschutz/service/wichtige-rufnummern/wichtige-rufnummern-1279430.php">www.berlin.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>berlin/rbb_frequenzen.html</code></td><td><a href="https://www.rbb-online.de/radio/frequenzen/">www.rbb-online.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>berlin/giftnotruf.html</code></td><td><a href="https://giftnotruf.charite.de/">giftnotruf.charite.de</a>. Download it (right click, Save link as).</td></tr>
+<tr><td><code>berlin/116117.html</code></td><td><a href="https://www.116117.de/de/index.php">www.116117.de</a>. Download it (right click, Save link as).</td></tr>
+</table></li>
+<li>Install the Kiwix reader for your system from <a href="https://kiwix.org/en/applications/">kiwix.org/en/applications</a>.</li>
+<li>Download the offline wikis (ZIM files) into the folder. Open them with Kiwix.
+<ul>
+<li><code>wikipedia_en_medicine_nopic_YYYY-MM.zim</code> (1.0 GB, medical Wikipedia articles): the newest one in <a href="https://download.kiwix.org/zim/wikipedia/">https://download.kiwix.org/zim/wikipedia/</a></li>
+<li><code>appropedia_en_all_maxi_YYYY-MM.zim</code> (0.6 GB, appropriate technology wiki): the newest one in <a href="https://download.kiwix.org/zim/other/">https://download.kiwix.org/zim/other/</a></li>
+<li><code>zimgit-post-disaster_en_YYYY-MM.zim</code> (0.6 GB, post-disaster guides): the newest one in <a href="https://download.kiwix.org/zim/other/">https://download.kiwix.org/zim/other/</a></li>
+<li><code>zimgit-food-preparation_en_YYYY-MM.zim</code> (0.1 GB, food preparation): the newest one in <a href="https://download.kiwix.org/zim/other/">https://download.kiwix.org/zim/other/</a></li>
+<li><code>zimgit-medicine_en_YYYY-MM.zim</code> (0.1 GB, medicine guides): the newest one in <a href="https://download.kiwix.org/zim/other/">https://download.kiwix.org/zim/other/</a></li>
+<li><code>zimgit-water_en_YYYY-MM.zim</code> (20 MB, water guides): the newest one in <a href="https://download.kiwix.org/zim/other/">https://download.kiwix.org/zim/other/</a></li>
+<li><code>zimgit-knots_en_YYYY-MM.zim</code> (30 MB, knots): the newest one in <a href="https://download.kiwix.org/zim/other/">https://download.kiwix.org/zim/other/</a></li>
+<li><code>wikipedia_en_top_nopic_YYYY-MM.zim</code> (2.6 GB, the most read Wikipedia articles, no pictures; optional): the newest one in <a href="https://download.kiwix.org/zim/wikipedia/">https://download.kiwix.org/zim/wikipedia/</a></li>
+</ul></li>
+<li>Open the guide pages in the folder: this guide links to the original websites; the files sit next to it.
+(With Python installed, <code>python3 outage_guide.py local .</code> in the folder writes <code>START_HERE.html</code>, which links to the files.)</li>
 </ol>
 <p>Medicine books: <a href="https://languages.hesperian.org/pages/en/pdf.html">Where There Is No Doctor</a>, <a href="https://languages.hesperian.org/pages/en/pdf.html">Where There Is No Dentist</a>.
-Checklists to stock up: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=34">BBK checklist, PDF page 34</a>; <a href="https://www.ready.gov/sites/default/files/2021-03/are-you-ready-guide.pdf">FEMA Are You Ready</a>.</p>
+Checklists to stock up: <a href="https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf#page=34">BBK checklist, PDF page 34</a>; <a href="emergency_guides/FEMA_Are_You_Ready_2020.pdf">FEMA Are You Ready</a>.</p>
 </body></html>
