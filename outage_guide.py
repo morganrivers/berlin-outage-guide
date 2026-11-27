@@ -88,6 +88,12 @@ BBK_EN = "emergency_guides/BBK_Planning_ahead_for_crises_and_disasters_2025_EN.p
 WTND = chapter_path(WTND_CHAPTERS[1])
 DENT = chapter_path(DENT_CHAPTERS[0])
 FEMA_READY = "emergency_guides/FEMA_Are_You_Ready_2020.pdf"
+MAP = "berlin/berlin_emergency_map.html"
+KATL = "berlin/berlin_kat_leuchttuerme.html"
+KATL_FK = "berlin/friedrichshain_kreuzberg_kat_leuchttuerme.html"
+BWB_PUMPS = "berlin/bwb_notbrunnen.html"
+CDC_WATER = "emergency_guides/CDC_Make_Water_Safe_During_Emergency.pdf"
+RBB_JAN = "berlin/rbb24_blackout_january_2026.html"
 SOURCES = {s.path: s for s in [
     Source(BBK_EN, "BBK (German federal civil protection office): Planning ahead for crises and disasters, English, Nov 2025",
            "https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf", "file"),
@@ -123,6 +129,20 @@ SOURCES = {s.path: s for s in [
            "https://www.openstreetmap.org/copyright", "repo"),
     Source("berlin/notbrunnen_hand_pumps.gpx", "Same pumps as GPX for offline map apps, made from the CSV above (© OpenStreetMap contributors, ODbL)",
            "https://www.openstreetmap.org/copyright", "repo"),
+    Source(MAP, "Offline map of Berlin, one HTML file that opens in any browser without internet or an app: Kat-Leuchttürme and info points "
+           "(from the list above), hand pumps, hospitals, fire and police stations, pharmacies, supermarkets, hardware stores, "
+           "underground stations, plus main roads and towns in Brandenburg. Press and hold a spot to list the nearest of each. "
+           "© OpenStreetMap contributors, ODbL", "https://www.openstreetmap.org/copyright", "repo"),
+    Source(KATL, "berlin.de: Katastrophenschutz-Leuchttürme, how they open (saved web page)",
+           "https://www.berlin.de/bevoelkerungsschutz/warnung-und-information/katastrophenschutz-leuchttuerme/", "file"),
+    Source(KATL_FK, "Friedrichshain-Kreuzberg district: its Kat-Leuchttürme are not yet ready (saved web page)",
+           "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/service-und-organisationseinheiten/katastrophenschutz/artikel.1663279.php", "file"),
+    Source(BWB_PUMPS, "Berliner Wasserbetriebe: Notbrunnen, how many work and whether the water is drinkable (saved web page)",
+           "https://www.bwb.de/de/notbrunnen.php", "file"),
+    Source(CDC_WATER, "CDC: Make water safe during an emergency, 2022 (US government work, public domain)",
+           "https://www.cdc.gov/water-emergency/media/pdfs/make-water-safe-during-emergency-p.pdf", "repo"),
+    Source(RBB_JAN, "rbb24: live blog of the January 2026 blackout in south-west Berlin; water and sewage kept running (saved web page)",
+           "https://www.rbb24.de/panorama/beitrag/2026/01/berlin-sueden-massiver-stromausfall-nikolassee-zehlendorf-wannsee-lichterfelde-verteilerstation-brand.html", "file"),
     article("Bucket_toilet"),
     article("Emergency_sanitation"),
     article("Carbon_monoxide_poisoning"),
@@ -284,6 +304,8 @@ def body(g, n_pumps, table, n_points):
 <p class="warn"><b>Claude Opus 5.5, an AI model, wrote this entire guide. I am not responsible for your safety.
 Treat it as an unreviewed guide that may be incorrect. Still, it is better than nothing.
 I also put together a large offline library: the last section shows how to download it, with a script on Linux or by hand.</b></p>
+<p><b>Offline map:</b> {a(MAP, "berlin_emergency_map.html")} shows every Kat-Leuchtturm, hand pump, hospital, fire and police station in Berlin.
+It is one file that opens in any browser without internet or an app. Save it to your phone now. Press and hold a spot to list the nearest of each.</p>
 <p class="src">Written 22 Nov 2026 for a 4th floor flat, two or three adults, radiator heating. {where}
 Grey "Source" lines name the document that backs each step.</p>
 
@@ -301,7 +323,7 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <div class="box"><b>Numbers and radio (write these on paper too)</b>
 <ul>
 <li>Fire brigade and ambulance: <b>112</b>. Police: <b>110</b>. <span class="src">Source: {a(rufn, "berlin.de Rufnummern")}</span></li>
-<li>If 112 and 110 do not work: go to the nearest police station, fire station or Kat-Leuchtturm (list below). <span class="src">Source: {b(15)}; {a(strom, "berlin.de Stromausfall")}</span></li>
+<li>If 112 and 110 do not work: go to the nearest police station, fire station or open Kat-Leuchtturm (list below). <span class="src">Source: {b(15)}; {a(strom, "berlin.de Stromausfall")}</span></li>
 <li>Medical on-call service (not an emergency): <b>116117</b>. <span class="src">Source: {a("berlin/116117.html", "116117.de")}</span></li>
 <li>Poison line Berlin: <b>030 19240</b>. <span class="src">Source: {a("berlin/giftnotruf.html", "Giftnotruf Charité")}</span></li>
 <li>Police non-emergency line: <b>030 4664 4664</b>. <span class="src">Source: {a(rufn, "berlin.de Rufnummern")}</span></li>
@@ -326,19 +348,19 @@ BBK advises at least 10 days, and at least 3 days as a start. <span class="src">
 <ol>
 <li>Expect the radiators to go cold. Central heating needs electricity for its pumps and controls. <span class="src">Source: {b(25)}</span></li>
 <li>Dress warm. Pick one room, close its doors, stay there. Air it briefly (a few minutes, window wide open) a few times a day. <span class="src">Source: {b(25)}; {a(strom, "berlin.de Stromausfall")}</span></li>
-<li><b>Never use a camping stove, barbecue, generator or gas heater indoors unless it is approved for indoor use.</b> Carbon monoxide kills without warning. Its signs are flu-like symptoms. <span class="src">Source: {b(24)}; {a(fema, "FEMA power outage sheet", 2)}; {a("library_extracts/Wikipedia_Carbon_monoxide_poisoning.pdf", "Wikipedia: Carbon monoxide poisoning")}</span></li>
+<li><b>Never use a camping stove, barbecue, generator or gas heater indoors unless it is approved for indoor use.</b> Carbon monoxide kills without warning. Its signs are flu-like symptoms: headache, dizziness, weakness, nausea. If a CO alarm sounds or someone gets these signs near a stove or heater, get everyone out into fresh air and call 112. A battery CO alarm is a good buy. <span class="src">Source: {b(24)}; {a(fema, "FEMA power outage sheet", 2)}; {a("library_extracts/Wikipedia_Carbon_monoxide_poisoning.pdf", "Wikipedia: Carbon monoxide poisoning")}</span></li>
 <li>Cooking indoors without power: tea light warmer or fondue set for small amounts. Camping gas stoves: outdoors only. <span class="src">Source: {b(24)}</span></li>
 <li>Get cash if a shop or bank still works. ATMs and card payment fail without power. <span class="src">Source: {b(7)}; {a(strom, "berlin.de Stromausfall")}</span></li>
 <li>Tell your neighbours what you know. Not everyone gets the warnings. <span class="src">Source: {b(13)}</span></li>
-<li>Find your nearest Kat-Leuchtturm in the list below. Note its address on paper. <span class="src">Source: {a("berlin/Berlin_Flyer_Gefahrenlagen.pdf", "Berlin flyer")}</span></li>
+<li>Find your nearest Kat-Leuchtturm in the list below or on the {a(MAP, "offline map")}. Note its address on paper. <span class="src">Source: {a("berlin/Berlin_Flyer_Gefahrenlagen.pdf", "Berlin flyer")}</span></li>
 </ol>
 
 <h2>First day</h2>
 <ol>
-<li>Go to a Kat-Leuchtturm for news, emergency calls and help. The districts open them in long outages. <span class="src">Source: {a(strom, "berlin.de Stromausfall")}</span></li>
+<li>Kat-Leuchttürme: they are not open all the time. In a long outage each district decides whether, where and for how long to open them, and the opening is announced separately: listen to the radio. Some listed sites are not ready yet (both in Friedrichshain-Kreuzberg, for example). An open one takes emergency calls and gives news, official advice and information about supplies and help. Charging, medical care, food and beds are not on that list, so do not count on them. <span class="src">Source: {a(KATL, "berlin.de Kat-Leuchttürme")}; {a(KATL_FK, "Friedrichshain-Kreuzberg Kat-Leuchttürme")}; services: {a("berlin/kat_leuchttuerme.csv", "kat_leuchttuerme.csv")}</span></li>
 <li>Food: a closed fridge keeps food safe for 4 hours. A full closed freezer: 48 hours; half full: 24 hours. Eat the fridge food first. If in doubt, throw it out. <span class="src">Source: {a(cdc, "CDC food safety", 1)}</span></li>
-<li>Toilet: if the tap water stops, do not flush. Seal the toilet shut. Use a bucket with a plastic bag and a lid. Put dry material in the bottom (sawdust, newspaper, leaves). Cover each use with sawdust, ash or similar. Use a second bucket for urine if you can. <span class="src">Source: {a("library_extracts/Wikipedia_Bucket_toilet.pdf", "Wikipedia: Bucket toilet")}; {a("emergency_guides/Emergency_Toilets_WREMO.pdf", "WREMO emergency toilets")}; {a("library_extracts/Wikipedia_Emergency_sanitation.pdf", "Wikipedia: Emergency sanitation")}</span></li>
-<li>Water: if the taps are dry, use Berlin's street hand pumps (Notbrunnen). {n_pumps} are in the map file {a("berlin/notbrunnen_hand_pumps.gpx", "notbrunnen_hand_pumps.gpx")}. Load it into Organic Maps or OsmAnd now, before an outage. Boil pump water for several minutes if you can. <span class="src">Source: pumps from OpenStreetMap, © OpenStreetMap contributors, ODbL ({a("berlin/notbrunnen_osm.csv", "CSV")}); boiling: {a("library_extracts/Appropedia_Water_supply_and_purification_for_emergencies.pdf", "Appropedia: Water supply and purification for emergencies")}</span></li>
+<li>Toilet: if the drains still work, flush with a bucket of water you do not need for drinking when the cistern stays empty, and flush sparingly. In the January 2026 blackout the sewers kept working, partly on emergency generators. If sewage backs up, the drains stop working, or you are told not to flush, stop using the toilet. Seal it shut. Use a bucket with a plastic bag and a lid. Put dry material in the bottom (sawdust, newspaper, leaves). Cover each use with sawdust, ash or similar. Use a second bucket for urine if you can. <span class="src">Source: flushing with a bucket: no source, common practice; January 2026: {a(RBB_JAN, "rbb24, 16:53 entry")}; buckets: {a("library_extracts/Wikipedia_Bucket_toilet.pdf", "Wikipedia: Bucket toilet")}; {a("emergency_guides/Emergency_Toilets_WREMO.pdf", "WREMO emergency toilets")}; {a("library_extracts/Wikipedia_Emergency_sanitation.pdf", "Wikipedia: Emergency sanitation")}</span></li>
+<li>Water: drink your stored water first. If the taps are dry, Berlin has street hand pumps (Notbrunnen), but about 30% of them do not work (1,394 of 1,976 working), and Berliner Wasserbetriebe says they do not deliver drinking water. Follow the authorities' instructions on which pumps to use and how to treat the water. Boiling clear water for 1 minute kills germs; disinfecting tablets used as directed kill most of them. Neither removes chemicals: if the water may be chemically contaminated, do not drink it. The pumps are on the {a(MAP, "offline map")}, and {n_pumps} are in {a("berlin/notbrunnen_hand_pumps.gpx", "notbrunnen_hand_pumps.gpx")} for Organic Maps or OsmAnd. <span class="src">Source: pumps working and water quality: {a(BWB_PUMPS, "Berliner Wasserbetriebe Notbrunnen")}; boiling, tablets and chemicals: {a(CDC_WATER, "CDC Make water safe", 1)}; pump locations from OpenStreetMap, © OpenStreetMap contributors, ODbL ({a("berlin/notbrunnen_osm.csv", "CSV")})</span></li>
 <li>Night: light and warmth. Sleep in clothes and a sleeping bag in your warm room. Know the signs of hypothermia (shivering, then confusion). <span class="src">Source: {a(WTND, "Where There Is No Doctor, emergencies caused by cold", "cold")}; {a("library_extracts/Wikipedia_Hypothermia.pdf", "Wikipedia: Hypothermia")}</span></li>
 <li>Fire: leave the room, close the door, leave the building, call 112. <span class="src">Source: {b(26)}</span></li>
 </ol>
