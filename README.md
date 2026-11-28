@@ -3,6 +3,16 @@
 <p class="warn"><b>Claude Opus 5.5, an AI model, wrote this entire guide. I am not responsible for your safety.
 Treat it as an unreviewed guide that may be incorrect. Still, it is better than nothing.
 I also put together a large offline library: the last section shows how to download it, with a script on Linux or by hand.</b></p>
+<div class="box"><b>Download it all for offline use (no account or tools needed)</b>
+<ul>
+<li><a href="https://github.com/morganrivers/berlin-outage-guide/releases/download/offline-pack/berlin-outage-guide-mini.zip">Mini pack</a> (about 15 MB zip): this guide, the offline map, the pump list and every
+document that may be shared. Unzip it and open <code>START_HERE.html</code>. Fits on any phone.</li>
+<li><a href="https://github.com/morganrivers/berlin-outage-guide/releases/download/offline-pack/berlin-outage-guide-full.zip">Full pack</a> (about 1.1 GB zip): the mini pack plus medical Wikipedia, which you read with
+the free <a href="https://kiwix.org/en/applications/">Kiwix app</a>. For the most-read Wikipedia articles as well (2.6 GB),
+use the Kiwix app's own library: search "wikipedia top".</li>
+</ul>
+<p class="src">Some books (Where There Is No Doctor, MSF, ERC, WHO, BBK) may not be republished, so the packs link to them instead.
+Download those from the publishers while you are online.</p></div>
 <p><b>Offline map:</b> <a href="berlin/berlin_emergency_map.html">berlin_emergency_map.html</a> shows every Kat-Leuchtturm, hand pump, hospital, fire and police station in Berlin.
 It is one file that opens in any browser without internet or an app. Save it to your phone now. Press and hold a spot to list the nearest of each.</p>
 <p class="src">Written 22 Nov 2026 for a 4th floor flat, two or three adults, radiator heating. Links open the original sources online, or the copy in this repo. The last section shows how to get all of them offline.
