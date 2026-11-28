@@ -4,7 +4,7 @@
   python3 outage_guide.py build                             -> index.html, README.md and .gitignore; links go
                                                                to the original sources, or to files in this repo
   python3 outage_guide.py local DIR                         -> DIR/START_HERE.html, links go to files in DIR
-  python3 outage_guide.py download [DIR] [--with-wikipedia] -> download the library into DIR (default: this
+  python3 outage_guide.py download [DIR]                    -> download the library into DIR (default: this
                                                                folder), then build DIR/START_HERE.html
 
 The repo ships only files that may be shared: US government works (public domain), Wikipedia and
@@ -94,11 +94,21 @@ KATL_FK = "berlin/friedrichshain_kreuzberg_kat_leuchttuerme.html"
 BWB_PUMPS = "berlin/bwb_notbrunnen.html"
 CDC_WATER = "emergency_guides/CDC_Make_Water_Safe_During_Emergency.pdf"
 RBB_JAN = "berlin/rbb24_blackout_january_2026.html"
+BBK_DE = "emergency_guides/BBK_Stromausfall_Vorsorge_und_Selbsthilfe_DE.pdf"
+ERC = "emergency_guides/ERC_Guidelines_for_Everyone_2025.pdf"
+MSF = "emergency_guides/MSF_Essential_Drugs_2026.pdf"
+BBK_MEDS = "emergency_guides/BBK_Medicine_cabinet_EN.pdf"
+FDA_INSULIN = "emergency_guides/FDA_Insulin_Storage_and_Switching_in_Emergency.pdf"
+CDC_CO = "emergency_guides/CDC_Carbon_Monoxide_Danger_flyer.pdf"
+FOOD_CHARTS = "emergency_guides/FoodSafetyGov_Food_Safety_During_Power_Outage.pdf"
+TWIN_BUCKET = "emergency_guides/RDPO_Twin_Bucket_Emergency_Toilet_flyer.pdf"
+WHO_DWM = "emergency_guides/WHO_Doing_What_Matters_in_Times_of_Stress_2020.pdf"
+CDC_DISAB = "emergency_guides/CDC_Emergency_Preparedness_People_with_Disabilities.pdf"
 SOURCES = {s.path: s for s in [
     Source(BBK_EN, "BBK (German federal civil protection office): Planning ahead for crises and disasters, English, Nov 2025",
            "https://www.ettlingen.de/site/Ettlingen-2021/get/params_E1441149346_Dattachment/3856928/BBK-Planning-ahead-for-crises-and-disasters_English%20November%202025.pdf", "file"),
-    Source("emergency_guides/BBK_Stromausfall_Vorsorge_und_Selbsthilfe_DE.pdf", "BBK: Stromausfall, Vorsorge und Selbsthilfe (German, older)",
-           "https://epflicht.ulb.uni-bonn.de/download/pdf/786332", "file"),
+    Source(BBK_DE, "BBK: Stromausfall, Vorsorge und Selbsthilfe (German, October 2026)",
+           "https://www.bbk.bund.de/SharedDocs/Downloads/DE/Mediathek/Publikationen/Buergerinformationen/stromausfall-vorsorge-selbsthilfe.pdf?__blob=publicationFile&v=17", "file"),
     Source("emergency_guides/FEMA_Power_Outage_sheet.pdf", "FEMA: Be prepared for a power outage, V-1008, Dec 2023 (US government work, public domain)",
            "https://www.cpp.edu/em/documents/power-outage-safety-tips-readygov-pdf.pdf", "repo"),
     Source(FEMA_READY, "FEMA: Are You Ready? US citizen preparedness guide (US government work, public domain)",
@@ -143,6 +153,25 @@ SOURCES = {s.path: s for s in [
            "https://www.cdc.gov/water-emergency/media/pdfs/make-water-safe-during-emergency-p.pdf", "repo"),
     Source(RBB_JAN, "rbb24: live blog of the January 2026 blackout in south-west Berlin; water and sewage kept running (saved web page)",
            "https://www.rbb24.de/panorama/beitrag/2026/01/berlin-sueden-massiver-stromausfall-nikolassee-zehlendorf-wannsee-lichterfelde-verteilerstation-brand.html", "file"),
+    Source(ERC, "European Resuscitation Council: Guidelines 2025 for Everyone, CPR and first aid for lay people",
+           "https://www.erc.edu/media/p5ymaeej/gl2025_layperson_book_ipdf-v11-e.pdf", "file"),
+    Source(MSF, "MSF (Doctors Without Borders): Essential Drugs, practical guidelines, January 2026. A reference for health workers",
+           "https://medicalguidelines.msf.org/sites/default/files/pdf/guideline-339-en.pdf", "file"),
+    Source(BBK_MEDS, "BBK: Medicine cabinet, what to keep at home (English web page saved as PDF)",
+           "https://www.bbk.bund.de/EN/Prepare-for-disasters/Personal-Preparedness/Medicine-cabinet/medicine-cabinet_node.html", "print"),
+    Source(FDA_INSULIN, "US FDA: Insulin storage and switching between products in an emergency, Sept 2026 (US government work, public domain; web page saved as PDF)",
+           "https://www.fda.gov/drugs/emergency-preparedness-drugs/information-regarding-insulin-storage-and-switching-between-products-emergency", "repo"),
+    Source(CDC_CO, "CDC: Carbon monoxide, one-page danger flyer (US government work, public domain)",
+           "https://www.cdc.gov/carbon-monoxide/media/pdfs/Flyer_Danger.pdf", "repo"),
+    Source(FOOD_CHARTS, "FoodSafety.gov: Food safety during a power outage, fridge and freezer charts, 2024 (US government work, public domain; web page saved as PDF)",
+           "https://www.foodsafety.gov/food-safety-charts/food-safety-during-power-outage", "repo"),
+    Source(TWIN_BUCKET, "Portland-area RDPO (PublicAlerts): Emergency toilet, twin bucket system, one-page flyer",
+           "https://drive.google.com/uc?export=download&id=1d2CTMeX4VzRDpvr06gUK_7ace_cWR97Z", "file", web="https://www.publicalerts.org/toilet"),
+    Source(WHO_DWM, "WHO: Doing What Matters in Times of Stress, an illustrated guide, 2020",
+           "https://iris.who.int/server/api/core/bitstreams/65bb7c04-5180-4773-a0d8-0d5be2cc35a0/content", "file",
+           web="https://www.who.int/publications/i/item/9789240003927"),
+    Source(CDC_DISAB, "CDC: Emergency kit and emergency plan for people with disabilities, 2024 (US government work, public domain; two web pages saved as one PDF)",
+           "https://www.cdc.gov/disability-emergency-preparedness/people-with-disabilities/build-a-kit.html", "repo"),
     article("Bucket_toilet"),
     article("Emergency_sanitation"),
     article("Carbon_monoxide_poisoning"),
@@ -150,16 +179,12 @@ SOURCES = {s.path: s for s in [
     article("Water_supply_and_purification_for_emergencies", site="Appropedia"),
 ]}
 
-# (Kiwix folder, file name prefix, size note, needs --with-wikipedia)
+# (Kiwix folder, file name prefix, size note). The zimgit bundles of mixed-quality books were dropped for the
+# one-per-topic documents in SOURCES; the knots bundle stays, because its knot guide exists nowhere else.
 ZIMS = [
-    ("zim/wikipedia/", "wikipedia_en_medicine_nopic", "1.0 GB, medical Wikipedia articles", False),
-    ("zim/other/", "appropedia_en_all_maxi", "0.6 GB, appropriate technology wiki", False),
-    ("zim/other/", "zimgit-post-disaster_en", "0.6 GB, post-disaster guides", False),
-    ("zim/other/", "zimgit-food-preparation_en", "0.1 GB, food preparation", False),
-    ("zim/other/", "zimgit-medicine_en", "0.1 GB, medicine guides", False),
-    ("zim/other/", "zimgit-water_en", "20 MB, water guides", False),
-    ("zim/other/", "zimgit-knots_en", "30 MB, knots", False),
-    ("zim/wikipedia/", "wikipedia_en_top_nopic", "2.6 GB, the most read Wikipedia articles, no pictures", True),
+    ("zim/wikipedia/", "wikipedia_en_medicine_nopic", "1.0 GB, medical Wikipedia articles"),
+    ("zim/wikipedia/", "wikipedia_en_top_nopic", "2.6 GB, the most read Wikipedia articles, no pictures"),
+    ("zim/other/", "zimgit-knots_en", "30 MB, knots"),
 ]
 
 
@@ -242,8 +267,8 @@ def manual_steps():
         else:
             site = src.url.split("/")[2]
             rows.append(f'<tr><td><code>{html.escape(path)}</code></td><td><a href="{html.escape(src.url)}">{html.escape(site)}</a>. {HOW[src.get]}</td></tr>')
-    zims = "\n".join(f'<li><code>{p}_YYYY-MM.zim</code> ({html.escape(n)}{"; optional" if opt else ""}): the newest one in '
-                     f'<a href="{KIWIX}{f}">{KIWIX}{f}</a></li>' for f, p, n, opt in ZIMS)
+    zims = "\n".join(f'<li><code>{p}_YYYY-MM.zim</code> ({html.escape(n)}): the newest one in '
+                     f'<a href="{KIWIX}{f}">{KIWIX}{f}</a></li>' for f, p, n in ZIMS)
     return f"""<ol>
 <li>Get this repo: on <a href="{REPO_URL}">its GitHub page</a> click Code, then Download ZIP. Unzip it.
 The files that may be shared are already in it.</li>
@@ -261,6 +286,27 @@ The files that may be shared are already in it.</li>
 </ol>"""
 
 
+def by_topic(g):
+    """One best document per need, so nobody has to wade through the library in a hurry."""
+    a = g.a
+    rows = [("Illness and injury", a(WTND, "Where There Is No Doctor")),
+            ("CPR and first aid", a(ERC, "ERC Guidelines for Everyone")),
+            ("Teeth", a(DENT, "Where There Is No Dentist")),
+            ("Medicines and doses (for health workers)", a(MSF, "MSF Essential Drugs")),
+            ("What medicines to keep at home", a(BBK_MEDS, "BBK Medicine cabinet")),
+            ("Insulin", a(FDA_INSULIN, "FDA insulin storage and switching")),
+            ("Stocking up before an outage", f'{a(BBK_EN, "BBK checklist", 34)}; German: {a(BBK_DE, "BBK Stromausfall")}'),
+            ("Carbon monoxide", a(CDC_CO, "CDC carbon monoxide flyer")),
+            ("Making water safe", a(CDC_WATER, "CDC Make water safe")),
+            ("Food after a power cut", a(FOOD_CHARTS, "FoodSafety.gov fridge and freezer charts")),
+            ("Toilet when you cannot flush", a(TWIN_BUCKET, "Twin bucket toilet flyer")),
+            ("Stress and anxiety", a(WHO_DWM, "WHO Doing What Matters in Times of Stress")),
+            ("People with disabilities", a(CDC_DISAB, "CDC kit and plan for people with disabilities")),
+            ("Knots", "the knots ZIM file, in Kiwix")]
+    return ("<h3>One document per topic</h3>\n<table><tr><th>Need</th><th>Document</th></tr>\n"
+            + "\n".join(f"<tr><td>{html.escape(n)}</td><td>{d}</td></tr>" for n, d in rows) + "\n</table>")
+
+
 def library_section(g):
     if g.mode == "web":
         return f"""<p>This guide links to its sources online. Files that may be shared are in <a href="{REPO_URL}">the repo</a>.
@@ -269,14 +315,13 @@ To have every source offline, plus offline wikis with a reader, use the script o
 <ol>
 <li>Install <code>git</code>, <code>curl</code> and <code>python3</code>. Chrome or Chromium saves one web page as PDF.</li>
 <li>Run <code>git clone {REPO_URL}</code></li>
-<li>Run <code>berlin-outage-guide/download.sh</code>. It downloads about 2.6 GB into the cloned folder.
-Add <code>--with-wikipedia</code> for the 2.6 GB general Wikipedia as well. To use another folder, give it as the first argument.</li>
+<li>Run <code>berlin-outage-guide/download.sh</code>. It downloads about 3.8 GB into the cloned folder.
+To use another folder, give it as the first argument.</li>
 <li>Open <code>berlin-outage-guide/START_HERE.html</code>. It is this guide, with every link going to a file on your disk.</li>
 </ol>
 <h3>By hand (Windows, Mac, or without the script)</h3>
 {manual_steps()}
-<p>Medicine books: {g.a(WTND, "Where There Is No Doctor")}, {g.a(DENT, "Where There Is No Dentist")}.
-Checklists to stock up: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a(FEMA_READY, "FEMA Are You Ready")}.</p>"""
+{by_topic(g)}"""
     appimages = sorted(p.name for p in g.lib.glob("kiwix-desktop*.appimage"))
     reader = (f"run <code>{html.escape(appimages[-1])}</code> in this folder and open the <code>.zim</code> files with it"
               if appimages else "the Kiwix reader is missing; run download.sh again")
@@ -286,9 +331,9 @@ Checklists to stock up: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a(FEMA_READY, "FE
 <li>Open the reader: {reader}.</li>
 <li>Search across all ZIM files: <code>kiwix-tools/kiwix-serve --port 8181 *.zim</code>, then open <code>http://127.0.0.1:8181</code> in a browser. This works offline.</li>
 <li>Useful searches: carbon monoxide poisoning, hypothermia, water purification, oral rehydration therapy, first aid, food preservation, solar cooker, rainwater harvesting.</li>
-<li>Medicine: {g.a(WTND, "Where There Is No Doctor")}, {g.a(DENT, "Where There Is No Dentist")} (chapter PDFs in <code>{CHAPTERS}</code>).</li>
-<li>Checklists to stock up before an outage: {g.a(BBK_EN, "BBK checklist", 34)}; {g.a(FEMA_READY, "FEMA Are You Ready")}.</li>
-</ul>"""
+<li>Where There Is No Doctor and Where There Is No Dentist are chapter PDFs in <code>{CHAPTERS}</code>.</li>
+</ul>
+{by_topic(g)}"""
 
 
 def body(g, n_pumps, table, n_points):
@@ -575,7 +620,7 @@ def get_kiwix(lib):
         assert (tools / "kiwix-serve").is_file(), f"kiwix-serve not found in {name}"
 
 
-def download(lib, with_wikipedia):
+def download(lib):
     lib.mkdir(parents=True, exist_ok=True)
     failed = []
 
@@ -592,10 +637,7 @@ def download(lib, with_wikipedia):
             continue
         attempt(path, get_source, src, lib)
     attempt("Kiwix reader and kiwix-serve", get_kiwix, lib)
-    for folder, prefix, note, optional in ZIMS:
-        if optional and not with_wikipedia:
-            print(f"skip {prefix} ({note}); add --with-wikipedia to get it")
-            continue
+    for folder, prefix, note in ZIMS:
         attempt(f"{prefix} ({note})", get_zim, folder, prefix, lib)
     missing = build_local(lib)
     if failed or missing:
@@ -611,14 +653,13 @@ def main():
     sub.add_parser("local").add_argument("dir", type=Path)
     d = sub.add_parser("download")
     d.add_argument("dir", type=Path, nargs="?", default=REPO)
-    d.add_argument("--with-wikipedia", action="store_true", help="also get the 2.6 GB general Wikipedia")
     args = ap.parse_args()
     if args.cmd == "build":
         build_web()
     elif args.cmd == "local":
         build_local(args.dir.expanduser().resolve())
     else:
-        download(args.dir.expanduser().resolve(), args.with_wikipedia)
+        download(args.dir.expanduser().resolve())
 
 
 if __name__ == "__main__":
