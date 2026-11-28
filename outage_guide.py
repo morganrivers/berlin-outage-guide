@@ -6,6 +6,9 @@
   python3 outage_guide.py local DIR                         -> DIR/START_HERE.html, links go to files in DIR
   python3 outage_guide.py download [DIR]                    -> download the library into DIR (default: this
                                                                folder), then build DIR/START_HERE.html
+  python3 outage_guide.py pack OUT [--full]                 -> OUT/berlin-outage-guide-mini.zip: the shareable files
+                                                               and START_HERE.html; --full also writes ...-full.zip,
+                                                               which adds medical Wikipedia (CC BY-SA)
 
 The repo ships only files that may be shared: US government works (public domain), Wikipedia and
 Appropedia articles (CC BY-SA) and OpenStreetMap data (ODbL). Everything else comes from its publisher.
@@ -19,11 +22,15 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
 REPO_URL = "https://github.com/morganrivers/berlin-outage-guide"
+PACK_TAG = "offline-pack"   # GitHub release that the workflow keeps up to date with the zips below
+PACKS = {"mini": "berlin-outage-guide-mini.zip", "full": "berlin-outage-guide-full.zip"}
+FULL_ZIMS = [("zim/wikipedia/", "wikipedia_en_medicine_nopic")]   # Wikipedia is CC BY-SA, so it may be shared
 UA = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
 KIWIX = "https://download.kiwix.org/"
 HESP = "https://hesperian.org/wp-content/uploads/pdf/"
@@ -324,16 +331,34 @@ To use another folder, give it as the first argument.</li>
 {by_topic(g)}"""
     appimages = sorted(p.name for p in g.lib.glob("kiwix-desktop*.appimage"))
     reader = (f"run <code>{html.escape(appimages[-1])}</code> in this folder and open the <code>.zim</code> files with it"
-              if appimages else "the Kiwix reader is missing; run download.sh again")
+              if appimages else 'install the free <a href="https://kiwix.org/en/applications/">Kiwix app</a> and open the <code>.zim</code> files with it')
     zims = ", ".join(sorted(p.name for p in g.lib.glob("*.zim"))) or "none downloaded"
+    serve = ('<li>Search across all ZIM files: <code>kiwix-tools/kiwix-serve --port 8181 *.zim</code>, then open '
+             '<code>http://127.0.0.1:8181</code> in a browser. This works offline.</li>\n'
+             if (g.lib / "kiwix-tools/kiwix-serve").is_file() else "")
     return f"""<ul>
 <li>Offline wikis (ZIM files): {html.escape(zims)}.</li>
 <li>Open the reader: {reader}.</li>
-<li>Search across all ZIM files: <code>kiwix-tools/kiwix-serve --port 8181 *.zim</code>, then open <code>http://127.0.0.1:8181</code> in a browser. This works offline.</li>
-<li>Useful searches: carbon monoxide poisoning, hypothermia, water purification, oral rehydration therapy, first aid, food preservation, solar cooker, rainwater harvesting.</li>
+{serve}<li>Useful searches: carbon monoxide poisoning, hypothermia, water purification, oral rehydration therapy, first aid, food preservation, solar cooker, rainwater harvesting.</li>
 <li>Where There Is No Doctor and Where There Is No Dentist are chapter PDFs in <code>{CHAPTERS}</code>.</li>
 </ul>
 {by_topic(g)}"""
+
+
+def download_box(g):
+    if g.mode != "web":
+        return ""
+    base = f"{REPO_URL}/releases/download/{PACK_TAG}/"
+    return f"""<div class="box"><b>Download it all for offline use (no account or tools needed)</b>
+<ul>
+<li><a href="{base}{PACKS['mini']}">Mini pack</a> (about 15 MB zip): this guide, the offline map, the pump list and every
+document that may be shared. Unzip it and open <code>START_HERE.html</code>. Fits on any phone.</li>
+<li><a href="{base}{PACKS['full']}">Full pack</a> (about 1.1 GB zip): the mini pack plus medical Wikipedia, which you read with
+the free <a href="https://kiwix.org/en/applications/">Kiwix app</a>. For the most-read Wikipedia articles as well (2.6 GB),
+use the Kiwix app's own library: search "wikipedia top".</li>
+</ul>
+<p class="src">Some books (Where There Is No Doctor, MSF, ERC, WHO, BBK) may not be republished, so the packs link to them instead.
+Download those from the publishers while you are online.</p></div>"""
 
 
 def body(g, n_pumps, table, n_points):
@@ -344,11 +369,12 @@ def body(g, n_pumps, table, n_points):
     strom = "berlin/berlin_stromausfall.html"
     rufn = "berlin/berlin_rufnummern.html"
     where = ("Links open the original sources online, or the copy in this repo. The last section shows how to get all of them offline."
-             if g.mode == "web" else "Every link opens a file in this folder; nothing needs the internet.")
+             if g.mode == "web" else "Links open the files in this folder. A document that is not in the folder links to its website instead.")
     return f"""<h1>Power outage in Berlin: first minutes to first week</h1>
 <p class="warn"><b>Claude Opus 5.5, an AI model, wrote this entire guide. I am not responsible for your safety.
 Treat it as an unreviewed guide that may be incorrect. Still, it is better than nothing.
 I also put together a large offline library: the last section shows how to download it, with a script on Linux or by hand.</b></p>
+{download_box(g)}
 <p><b>Offline map:</b> {a(MAP, "berlin_emergency_map.html")} shows every Kat-Leuchtturm, hand pump, hospital, fire and police station in Berlin.
 It is one file that opens in any browser without internet or an app. Save it to your phone now. Press and hold a spot to list the nearest of each.</p>
 <p class="src">Written 22 Nov 2026 for a 4th floor flat, two or three adults, radiator heating. {where}
@@ -646,6 +672,35 @@ def download(lib):
     print(f"\nDone. Open {lib / 'START_HERE.html'}")
 
 
+def zip_folder(folder, out):
+    """Zips folder as one top-level folder. PDFs and ZIMs are already compressed, so they are stored as they are."""
+    tmp = out.with_name(out.name + ".part")
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for f in sorted(folder.rglob("*")):
+            if f.is_file():
+                kind = zipfile.ZIP_STORED if f.suffix in (".pdf", ".zim") else zipfile.ZIP_DEFLATED
+                z.write(f, Path(folder.name) / f.relative_to(folder), compress_type=kind)
+    tmp.rename(out)
+    print(f"wrote {out} ({out.stat().st_size / 1e6:.1f} MB)")
+
+
+def pack(out, full):
+    """The release zips: no download step and no tools needed, for people who just want the files."""
+    out.mkdir(parents=True, exist_ok=True)
+    folder = out / "berlin-outage-guide"
+    shutil.rmtree(folder, ignore_errors=True)
+    folder.mkdir()
+    build_local(folder)  # copies every file this repo may share, links the rest online
+    zip_folder(folder, out / PACKS["mini"])
+    assert (out / PACKS["mini"]).stat().st_size < 30e6, "the mini pack should stay under 30 MB"
+    if full:
+        for f, prefix in FULL_ZIMS:
+            get_zim(f, prefix, folder)
+        build_local(folder)  # lists the ZIM files now present
+        zip_folder(folder, out / PACKS["full"])
+    shutil.rmtree(folder)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -653,11 +708,16 @@ def main():
     sub.add_parser("local").add_argument("dir", type=Path)
     d = sub.add_parser("download")
     d.add_argument("dir", type=Path, nargs="?", default=REPO)
+    pk = sub.add_parser("pack")
+    pk.add_argument("out", type=Path)
+    pk.add_argument("--full", action="store_true", help="also build the full pack with medical Wikipedia (downloads 1 GB)")
     args = ap.parse_args()
     if args.cmd == "build":
         build_web()
     elif args.cmd == "local":
         build_local(args.dir.expanduser().resolve())
+    elif args.cmd == "pack":
+        pack(args.out.expanduser().resolve(), args.full)
     else:
         download(args.dir.expanduser().resolve())
 
